@@ -1,9 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.UASPM1Kelompok1" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TIASA" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#FF6B6B</item>
+        <item name="colorPrimaryVariant">#E55555</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#4ECDC4</item>
+        <item name="colorSecondaryVariant">#45B8B0</item>
+        <item name="colorOnSecondary">#000000</item>
+        <item name="android:statusBarColor">#FF6B6B</item>
     </style>
 
-    <style name="Theme.UASPM1Kelompok1" parent="Base.Theme.UASPM1Kelompok1" />
+    <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="android:background">@drawable/dialog_bg_rounded</item>
+        <item name="android:padding">0dp</item>
+    </style>
 </resources>

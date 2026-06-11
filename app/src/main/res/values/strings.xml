@@ -1,3 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UAS PM1 Kelompok 1</string>
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">TIASA</string>
+    <string name="app_subtitle">Trisula Integrated Advanced Support Application</string>
+    <string name="logo_description">Logo TIASA</string>
+
+    <!-- ==================== LOGIN STRINGS ==================== -->
+    <string name="email_label">Email</string>
+    <string name="email_hint">Masukkan email Anda</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Masukkan password</string>
+    <string name="remember_me">Ingat Saya</string>
+    <string name="login_button">MASUK</string>
+    <string name="loading_text">Memproses...</string>
+    <string name="no_account">Belum punya akun? </string>
+    <string name="register_now">Daftar Sekarang</string>
+    <string name="forgot_password">Lupa Password?</string>
+
+    <!-- ==================== REGISTER STRINGS ==================== -->
+    <string name="register_title">Daftar Akun Baru</string>
+    <string name="register_subtitle">Isi data diri Anda dengan benar</string>
+    <string name="full_name_label">Nama Lengkap</string>
+    <string name="full_name_hint">Masukkan nama lengkap</string>
+    <string name="confirm_password_label">Konfirmasi Password</string>
+    <string name="confirm_password_hint">Masukkan ulang password</string>
+    <string name="terms_condition">Saya menyetujui Syarat dan Ketentuan yang berlaku</string>
+    <string name="have_account">Sudah punya akun? </string>
+    <string name="register_button">DAFTAR</string>
+    <string name="back_to_login">Masuk Sekarang</string>
+
+    <!-- ==================== GENDER ==================== -->
+    <string name="gender_label">Jenis Kelamin</string>
+    <string name="male">Laki-laki</string>
+    <string name="female">Perempuan</string>
+
+    <!-- ==================== PHONE ==================== -->
+    <string name="phone_label">Nomor WhatsApp</string>
+    <string name="phone_hint">081234567890</string>
+
+    <!-- ==================== ROLE STRINGS ==================== -->
+    <string name="role_label">Daftar Sebagai</string>
+    <string name="role_user">User</string>
+    <string name="role_staff_gudang">Staff Gudang</string>
+    <string name="role_kepala_gudang">Kepala Gudang</string>
+    <string name="role_qc">QC</string>
+    <string name="role_ekspedisi">Ekspedisi</string>
+
+    <!-- ==================== FORGOT PASSWORD STRINGS ==================== -->
+    <string name="forgot_title">Lupa Password</string>
+    <string name="forgot_description">Masukkan email Anda untuk mereset password</string>
+    <string name="send_button">RESET PASSWORD</string>
+
+    <!-- ==================== DASHBOARD STRINGS ==================== -->
+    <string name="profile_image">Foto Profil</string>
+    <string name="default_username">User TIASA</string>
+    <string name="default_email">user@tiasa.com</string>
+    <string name="logout">Logout</string>
+    <string name="menu_utama">Menu Utama</string>
+    <string name="menu_profile">Profil</string>
+    <string name="menu_jadwal">Jadwal</string>
+    <string name="menu_nilai">Nilai</string>
+    <string name="menu_absensi">Absensi</string>
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_info">Info</string>
+    <string name="footer_text">© 2024 PT Trisula Textile Industries Tbk</string>
+
+    <!-- ==================== DIALOG STRINGS ==================== -->
+    <string name="user_name_hint">Nama Lengkap</string>
+
+    <!-- ==================== DASHBOARD PRODUKSI ==================== -->
+    <string name="dashboard_title">🏭 DASHBOARD PRODUKSI</string>
+    <string name="menu_surat_perintah">📄 Kelola Surat Perintah</string>
+    <string name="menu_produksi">🏭 Kelola Produksi</string>
+    <string name="menu_hasil_produksi">📊 Kelola Hasil Produksi &amp; Kirim QC</string>
+
+    <!-- Surat Perintah -->
+    <string name="sp_buat_baru">📝 Buat Surat Perintah Baru</string>
+    <string name="sp_lihat_semua">📋 Lihat Semua Surat Perintah</string>
+    <string name="sp_update_status">🔄 Update Status Surat Perintah</string>
+    <string name="sp_edit">✏️ Edit Surat Perintah</string>
+    <string name="sp_hapus">🗑️ Hapus Surat Perintah</string>
+
+    <!-- Produksi -->
+    <string name="produksi_mulai">🚀 Mulai Produksi</string>
+    <string name="produksi_lapor">📝 Laporkan Hasil Produksi Harian</string>
+    <string name="produksi_monitoring">📊 Monitoring Produksi</string>
+
+    <!-- Hasil Produksi -->
+    <string name="hasil_lihat">📦 Lihat Hasil Produksi Selesai</string>
+    <string name="hasil_kirim_qc">📤 Kirim ke QC</string>
+
+    <!-- ==================== KEPALA GUDANG MENU ==================== -->
+    <string name="kepala_dashboard">📊 Dashboard Gudang</string>
+    <string name="kepala_laporan_stok">📈 Laporan Stok</string>
+    <string name="kepala_kelola_staff">👥 Kelola Staff</string>
+    <string name="kepala_monitoring">📋 Monitoring Produksi</string>
+
+    <!-- ==================== QC MENU ==================== -->
+    <string name="qc_inspeksi">🔍 Inspeksi Kain</string>
+    <string name="qc_laporan">📋 Laporan QC</string>
+    <string name="qc_lulus">✅ Kain Lulus QC</string>
+    <string name="qc_gagal">❌ Kain Gagal QC</string>
+
+    <!-- ==================== DIALOG TITLES ==================== -->
+    <string name="dialog_buat_sp_title">📝 BUAT SURAT PERINTAH BARU</string>
+    <string name="dialog_edit_sp_title">✏️ EDIT SURAT PERINTAH</string>
+    <string name="dialog_hapus_sp_title">🗑️ HAPUS SURAT PERINTAH</string>
+    <string name="dialog_update_status_title">🔄 UPDATE STATUS</string>
+    <string name="dialog_lapor_produksi_title">📝 LAPOR HASIL PRODUKSI HARIAN</string>
+    <string name="dialog_catat_produksi_title">📝 CATAT HASIL PRODUKSI</string>
+    <string name="dialog_inspeksi_title">🔍 INSPEKSI KAIN</string>
+    <string name="dialog_kirim_qc_title">📤 KONFIRMASI KIRIM KE QC</string>
+    <string name="dialog_logout_title">🚪 KONFIRMASI LOGOUT</string>
+
+    <!-- ==================== DIALOG MESSAGES ==================== -->
+    <string name="msg_simpan_berhasil">✅ Berhasil disimpan!</string>
+    <string name="msg_hapus_berhasil">✅ Berhasil dihapus!</string>
+    <string name="msg_update_berhasil">✅ Berhasil diupdate!</string>
+    <string name="msg_kirim_berhasil">✅ Berhasil dikirim ke QC!</string>
+    <string name="msg_data_kosong">Belum ada data</string>
+    <string name="msg_harus_diisi">❌ Field harus diisi</string>
+    <string name="msg_sp_tidak_ditemukan">❌ SP ID tidak ditemukan</string>
+
+    <!-- ==================== BUTTONS ==================== -->
+    <string name="btn_simpan">SIMPAN</string>
+    <string name="btn_batal">BATAL</string>
+    <string name="btn_tutup">TUTUP</string>
+    <string name="btn_ya">✅ YA</string>
+    <string name="btn_tidak">❌ TIDAK</string>
+    <string name="btn_refresh">REFRESH</string>
+    <string name="btn_laporkan">LAPORKAN</string>
+    <string name="btn_update">UPDATE</string>
+    <string name="btn_hapus">HAPUS</string>
+
+    <!-- ==================== FORM HINTS ==================== -->
+    <string name="hint_product_name">🧵 Nama Produk</string>
+    <string name="hint_quantity">📏 Jumlah</string>
+    <string name="hint_unit">📦 Satuan</string>
+    <string name="hint_deadline">📅 Deadline (YYYY-MM-DD)</string>
+    <string name="hint_sp_id">🆔 Nomor SP</string>
+    <string name="hint_notes">📝 Catatan / Kendala</string>
+    <string name="hint_example_product">Contoh: Kain Katun Premium</string>
+    <string name="hint_example_sp">Contoh: SP-001</string>
+
+    <!-- ==================== STATUS ==================== -->
+    <string name="status_menunggu_produksi">Menunggu Produksi</string>
+    <string name="status_sedang_produksi">Sedang Produksi</string>
+    <string name="status_selesai">Selesai</string>
+    <string name="status_menunggu_qc">Menunggu QC</string>
+    <string name="status_dikirim_qc">Dikirim ke QC</string>
+    <string name="status_lulus">Lulus</string>
+    <string name="status_gagal">Gagal</string>
 </resources>

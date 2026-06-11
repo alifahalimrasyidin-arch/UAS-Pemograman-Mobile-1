@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:padding="24dp">
+
+    <!-- reveal effect-->
+    <ImageView
+        android:id="@+id/ivLogoSplash"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/logo_trisula"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/logo_description" />
+
+</LinearLayout>

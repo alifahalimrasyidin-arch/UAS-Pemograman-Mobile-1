@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etSPId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="🆔 Nomor SP (contoh: SP-001)"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext"
+        android:textAllCaps="true" />
+
+    <EditText
+        android:id="@+id/etQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="📏 Jumlah Produksi (meter)"
+        android:inputType="number"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="📝 Catatan / Kendala"
+        android:padding="12dp"
+        android:minLines="2"
+        android:gravity="top"
+        android:background="@drawable/bg_edittext" />
+
+</LinearLayout>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etOrigin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Gudang Asal"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext"
+        android:text="Gudang Pusat" />
+
+    <EditText
+        android:id="@+id/etDestination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Kota Tujuan (Jakarta, Bandung, Surabaya)"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etGoods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Jenis Kain (Katun, Polyester, Denim)"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Jumlah (meter)"
+        android:inputType="number"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Berat (kg)"
+        android:inputType="numberDecimal"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etCustomer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Customer / Perusahaan"
+        android:padding="12dp"
+        android:background="@drawable/bg_edittext" />
+
+</LinearLayout>

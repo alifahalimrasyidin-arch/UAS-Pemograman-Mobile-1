@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F5F7FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Logo -->
+                <ImageView
+                    android:id="@+id/ivLogo"
+                    android:layout_width="300dp"
+                    android:layout_height="90dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/logo_trisula"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/logo_description"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Judul Register -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/register_title"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#4A90E2"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/register_subtitle"
+                    android:textSize="13sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="32dp" />
+
+                <!-- Field Nama Lengkap -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/full_name_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etFullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/full_name_hint"
+                    android:inputType="textPersonName"
+                    android:autofillHints="name"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext"
+                    android:textColor="#333333"
+                    android:textColorHint="#BBBBBB" />
+
+                <!-- Field Email -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/email_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/email_hint"
+                    android:inputType="textEmailAddress"
+                    android:autofillHints="emailAddress"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext"
+                    android:textColor="#333333"
+                    android:textColorHint="#BBBBBB" />
+
+                <!-- Jenis Kelamin -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gender_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/rbMale"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/male"
+                        android:textColor="#555555"
+                        android:layout_marginEnd="32dp"
+                        android:buttonTint="#4A90E2" />
+
+                    <RadioButton
+                        android:id="@+id/rbFemale"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/female"
+                        android:textColor="#555555"
+                        android:buttonTint="#4A90E2" />
+                </RadioGroup>
+
+                <!-- Field NomOR Handphone -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phone_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/etPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/phone_hint"
+                    android:inputType="phone"
+                    android:autofillHints="phone"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext"
+                    android:textColor="#333333"
+                    android:textColorHint="#BBBBBB" />
+
+                <!-- Pilihan Role (Spinner) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Daftar Sebagai"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/spRole"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_spinner"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Show/Hide -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/password_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_edittext"
+                    android:layout_marginBottom="16dp">
+
+                    <EditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:hint="@string/password_hint"
+                        android:inputType="textPassword"
+                        android:autofillHints="password"
+                        android:padding="16dp"
+                        android:background="@android:color/transparent"
+                        android:textColor="#333333"
+                        android:textColorHint="#BBBBBB" />
+
+                    <ImageButton
+                        android:id="@+id/btnTogglePassword"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_eye_close"
+                        android:background="@android:color/transparent"
+                        android:padding="16dp"
+                        android:contentDescription="Toggle Password" />
+                </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/confirm_password_label"
+                    android:textSize="14sp"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_edittext"
+                    android:layout_marginBottom="8dp">
+
+                    <EditText
+                        android:id="@+id/etConfirmPassword"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:hint="@string/confirm_password_hint"
+                        android:inputType="textPassword"
+                        android:autofillHints="password"
+                        android:padding="16dp"
+                        android:background="@android:color/transparent"
+                        android:textColor="#333333"
+                        android:textColorHint="#BBBBBB" />
+
+                    <ImageButton
+                        android:id="@+id/btnToggleConfirmPassword"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_eye_close"
+                        android:background="@android:color/transparent"
+                        android:padding="16dp"
+                        android:contentDescription="Toggle Confirm Password" />
+                </LinearLayout>
+
+                <!-- Password Strength Indicator -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:id="@+id/strengthBar1"
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_weight="1"
+                        android:background="#E0E0E0"
+                        android:layout_marginEnd="4dp" />
+
+                    <View
+                        android:id="@+id/strengthBar2"
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_weight="1"
+                        android:background="#E0E0E0"
+                        android:layout_marginEnd="4dp" />
+
+                    <View
+                        android:id="@+id/strengthBar3"
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_weight="1"
+                        android:background="#E0E0E0"
+                        android:layout_marginEnd="4dp" />
+
+                    <View
+                        android:id="@+id/strengthBar4"
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_weight="1"
+                        android:background="#E0E0E0" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPasswordStrength"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="11sp"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Checkbox Syarat & Ketentuan -->
+                <CheckBox
+                    android:id="@+id/cbTerms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/terms_condition"
+                    android:textColor="#555555"
+                    android:layout_marginBottom="24dp"
+                    android:buttonTint="#4A90E2" />
+
+                <!-- Tombol Register -->
+                <Button
+                    android:id="@+id/btnRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/register_button"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_button"
+                    android:stateListAnimator="@null" />
+
+                <!-- Progress Bar -->
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:indeterminateTint="#4A90E2" />
+
+                <TextView
+                    android:id="@+id/tvLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/loading_text"
+                    android:textColor="#4A90E2"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+
+                <!-- Link Kembali ke Login -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/have_account"
+                        android:textColor="#888888" />
+
+                    <TextView
+                        android:id="@+id/tvBackToLogin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/back_to_login"
+                        android:textColor="#4A90E2"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</ScrollView>
