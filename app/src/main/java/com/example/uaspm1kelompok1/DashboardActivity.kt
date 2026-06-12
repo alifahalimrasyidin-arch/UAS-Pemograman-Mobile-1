@@ -1,6 +1,5 @@
 package com.example.uaspm1kelompok1
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -10,9 +9,12 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.edit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,6 +27,20 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var menuContainer: LinearLayout
     private lateinit var sharedPreferences: SharedPreferences
     private var userRole: String = ""
+
+    // akses kamera
+    private val barcodeLauncher =
+        registerForActivityResult(
+            ScanContract()
+        ) { result ->
+            if (result.contents != null) {
+                Toast.makeText(
+                    this,
+                    "Barcode: ${result.contents}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
 
     // Data Surat Perintah Produksi
     private val suratPerintah = mutableListOf(
@@ -58,7 +74,7 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
         if (!sharedPreferences.getBoolean(KEY_IS_LOGIN, false)) {
             goToLogin()
@@ -89,9 +105,10 @@ class DashboardActivity : AppCompatActivity() {
         tvUserEmail.text = userEmail
 
         val roleDisplay = when (userRole) {
-            "" -> ""
-            "" -> ""
-            else -> ""
+            "kepala_gudang" -> "Kepala Gudang"
+            "quality_control" -> "Quality Control"
+            "staff_produksi" -> "Staff Produksi"
+            else -> userRole.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
         }
         tvUserRole.text = roleDisplay
         tvUserRole.visibility = View.VISIBLE
@@ -105,10 +122,15 @@ class DashboardActivity : AppCompatActivity() {
                 MenuItem("📊 Dashboard Gudang") { showDashboardGudang() },
                 MenuItem("📈 Laporan Stok") { showLaporanStok() },
                 MenuItem("👥 Kelola Staff") { kelolaStaff() },
+                MenuItem("🚚 Kelola Order Armada") { kelolaOrderArmada() },
+                MenuItem("📦 Kelola Pengiriman") { kelolaPengiriman() },
+                MenuItem("📊 Laporan Bulanan") { laporanBulanan() },
+                MenuItem("✏️ Edit Data Laporan") { editLaporan() },
                 MenuItem("📋 Monitoring Produksi") { monitoringProduksi() }
             )
             "quality_control" -> listOf(
                 MenuItem("🔍 Inspeksi Kain") { inspeksiKain() },
+                MenuItem("📷 Scan Barcode") { startBarcodeScanner() },
                 MenuItem("📋 Laporan QC") { showLaporanQC() },
                 MenuItem("✅ Kain Lulus QC") { showKainLulus() },
                 MenuItem("❌ Kain Gagal QC") { showKainGagal() }
@@ -129,7 +151,7 @@ class DashboardActivity : AppCompatActivity() {
                 ).apply {
                     bottomMargin = dpToPx(12)
                 }
-                background = getDrawable(R.drawable.bg_button)
+                background = AppCompatResources.getDrawable(this@DashboardActivity, R.drawable.bg_button)
                 setTextColor(getColor(android.R.color.white))
                 textSize = 16f
                 setOnClickListener { menu.action() }
@@ -164,6 +186,51 @@ class DashboardActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun kelolaOrderArmada() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("🚚 Kelola Order Armada")
+            .setMessage(
+                "Armada:\n\n" +
+                        "• Truk A\n" +
+                        "• Truk B\n" +
+                        "• Truk C"
+            )
+            .setPositiveButton("TUTUP", null)
+            .show()
+    }
+
+    private fun kelolaPengiriman() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("📦 Kelola Pengiriman")
+            .setMessage(
+                "Status Pengiriman:\n\n" +
+                        "• Pesanan #001 - Dikirim\n" +
+                        "• Pesanan #002 - Dalam Perjalanan"
+            )
+            .setPositiveButton("TUTUP", null)
+            .show()
+    }
+
+    private fun laporanBulanan() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("📊 Laporan Bulanan")
+            .setMessage(
+                "Produksi Bulan Ini\n\n" +
+                        "Total Produksi : 5000 Meter\n" +
+                        "Total Pengiriman : 4800 Meter"
+            )
+            .setPositiveButton("TUTUP", null)
+            .show()
+    }
+
+    private fun editLaporan() {
+        Toast.makeText(
+            this,
+            "Fitur Edit Data Laporan",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
     private fun buatSuratPerintah() {
         val inputView = layoutInflater.inflate(R.layout.dialog_surat_perintah, null)
         val etProductName = inputView.findViewById<EditText>(R.id.etProductName)
@@ -172,19 +239,19 @@ class DashboardActivity : AppCompatActivity() {
         val etDeadline = inputView.findViewById<EditText>(R.id.etDeadline)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle(null)
+            .setTitle("BUAT SURAT PERINTAH")
             .setView(inputView)
             .setPositiveButton("SIMPAN") { _, _ ->
                 val productName = etProductName.text.toString()
-                val quantity = etQuantity.text.toString()
+                val quantityStr = etQuantity.text.toString()
                 val unit = etUnit.text.toString()
                 val deadline = etDeadline.text.toString()
 
-                if (productName.isNotEmpty() && quantity.isNotEmpty()) {
+                if (productName.isNotEmpty() && quantityStr.isNotEmpty()) {
                     val newSP = SuratPerintah(
-                        id = "SP-${String.format("%03d", suratPerintah.size + 1)}",
+                        id = "SP-${String.format(Locale.US, "%03d", suratPerintah.size + 1)}",
                         productName = productName,
-                        quantity = quantity.toIntOrNull() ?: 0,
+                        quantity = quantityStr.toIntOrNull() ?: 0,
                         unit = unit.ifEmpty { "meter" },
                         deadline = deadline,
                         status = "Menunggu Produksi"
@@ -429,17 +496,17 @@ class DashboardActivity : AppCompatActivity() {
             .setTitle("📝 CATAT HASIL PRODUKSI: ${sp.id}")
             .setView(inputView)
             .setPositiveButton("SIMPAN") { _, _ ->
-                val quantity = etQuantity.text.toString()
+                val quantityStr = etQuantity.text.toString()
                 val notes = etNotes.text.toString()
 
-                if (quantity.isNotEmpty()) {
+                if (quantityStr.isNotEmpty()) {
                     val existing = hasilProduksi.find { it.spId == sp.id }
                     if (existing == null) {
                         hasilProduksi.add(
                             HasilProduksi(
                                 spId = sp.id,
                                 productName = sp.productName,
-                                quantity = quantity.toIntOrNull() ?: 0,
+                                quantity = quantityStr.toIntOrNull() ?: 0,
                                 unit = sp.unit,
                                 tanggalSelesai = getCurrentDate(),
                                 statusQC = "Menunggu QC",
@@ -491,7 +558,7 @@ class DashboardActivity : AppCompatActivity() {
                         quantity = hasil.quantity,
                         unit = hasil.unit,
                         tanggalKirim = getCurrentDate(),
-                        noQC = "QC-${String.format("%03d", dikirimKeQC.size + 1)}",
+                        noQC = "QC-${String.format(Locale.US, "%03d", dikirimKeQC.size + 1)}",
                         status = "Menunggu Inspeksi"
                     )
                 )
@@ -646,6 +713,14 @@ class DashboardActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun startBarcodeScanner() {
+        val options = ScanOptions()
+        options.setPrompt("Arahkan kamera ke barcode")
+        options.setBeepEnabled(true)
+        options.setOrientationLocked(true)
+        barcodeLauncher.launch(options)
+    }
+
     // ==================== UTILITY ====================
 
     private fun getCurrentDate(): String {
@@ -664,7 +739,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun performLogout() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
         Toast.makeText(this, "Berhasil logout", Toast.LENGTH_SHORT).show()
         goToLogin()
     }

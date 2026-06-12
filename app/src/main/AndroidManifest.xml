@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -15,7 +16,6 @@
         android:theme="@style/Theme.TIASA"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
         <!-- Splash Screen (Launcher Activity) -->
         <activity
             android:name=".SplashActivity"
@@ -23,25 +23,23 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Login Activity -->
+        </activity> <!-- Login Activity -->
         <activity
             android:name=".LoginActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Register Activity -->
-        <activity android:name=".RegisterActivity" android:exported="false" />
-
-        <!-- Forgot Password Activity -->
-        <activity android:name=".ForgotPasswordActivity" android:exported="false" />
-
-        <!-- Dashboard Activity -->
-        <activity android:name=".DashboardActivity" android:exported="false" />
-
+            android:windowSoftInputMode="adjustResize" /> <!-- Register Activity -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" /> <!-- Forgot Password Activity -->
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" /> <!-- Dashboard Activity -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
