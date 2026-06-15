@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvInfoSP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="12dp"/>
+
+        <Spinner
+            android:id="@+id/spJenisProduksi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvJenisError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jenis kain tidak sesuai surat perintah"
+            android:textColor="#FF0000"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/etPanjangProduksi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Panjang Kain Produksi"
+            android:inputType="number"
+            android:layout_marginTop="12dp"/>
+
+        <TextView
+            android:id="@+id/tvPanjangError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF0000"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/etCatatan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Catatan Produksi"
+            android:layout_marginTop="12dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

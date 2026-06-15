@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.TIASA" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#FF6B6B</item>
-        <item name="colorPrimaryVariant">#E55555</item>
+        <item name="colorPrimary">#4FA3FF</item>
+        <item name="colorPrimaryVariant">#3D6FFF</item>
         <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#4ECDC4</item>
-        <item name="colorSecondaryVariant">#45B8B0</item>
-        <item name="colorOnSecondary">#000000</item>
-        <item name="android:statusBarColor">#FF6B6B</item>
+
+        <item name="colorSecondary">#7BB8FF</item>
+        <item name="colorSecondaryVariant">#5C8DFF</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+
+        <item name="android:statusBarColor">#4FA3FF</item>
     </style>
 
     <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="android:background">@drawable/dialog_bg_rounded</item>
         <item name="android:padding">0dp</item>
     </style>
+
 </resources>
