@@ -29,10 +29,11 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvUserEmail: TextView
     private lateinit var tvUserRole: TextView
     private lateinit var btnLogout: Button
+    private lateinit var tvDashboardTitle: TextView
     private lateinit var menuContainer: LinearLayout
     private lateinit var sharedPreferences: SharedPreferences
     private var userRole: String = ""
-
+    private lateinit var rootDashboard: androidx.constraintlayout.widget.ConstraintLayout
 
     companion object {
         private const val PREFS_NAME = "TIASA_PREFS"
@@ -60,8 +61,47 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         userRole = sharedPreferences.getString(KEY_USER_ROLE, "staff_produksi") ?: "staff_produksi"
+        when (userRole) {
 
+            "kepala_gudang" -> {
+                window.decorView.setBackgroundResource(
+                    R.drawable.bg_dashboard_kepalagudang
+                )
+            }
+
+            "staff_produksi" -> {
+                window.decorView.setBackgroundResource(
+                    R.drawable.bg_dashboard_staffproduksi
+                )
+            }
+
+            "quality_control" -> {
+                window.decorView.setBackgroundResource(
+                    R.drawable.bg_dashboard_qc
+                )
+            }
+        }
         initViews()
+        when (userRole) {
+
+            "kepala_gudang" -> {
+                rootDashboard.setBackgroundResource(
+                    R.drawable.bg_dashboard_kepalagudang
+                )
+            }
+
+            "staff_produksi" -> {
+                rootDashboard.setBackgroundResource(
+                    R.drawable.bg_dashboard_staffproduksi
+                )
+            }
+
+            "quality_control" -> {
+                rootDashboard.setBackgroundResource(
+                    R.drawable.bg_dashboard_qc
+                )
+            }
+        }
         displayUserInfo()
         setupMenu()
         setupListeners()
@@ -73,6 +113,8 @@ class DashboardActivity : AppCompatActivity() {
         tvUserRole = findViewById(R.id.tvUserRole)
         btnLogout = findViewById(R.id.btnLogout)
         menuContainer = findViewById(R.id.menuContainer)
+        tvDashboardTitle = findViewById(R.id.tvDashboardTitle)
+        rootDashboard = findViewById(R.id.rootDashboard)
     }
 
     private fun displayUserInfo() {
@@ -90,87 +132,461 @@ class DashboardActivity : AppCompatActivity() {
         }
         tvUserRole.text = roleDisplay
         tvUserRole.visibility = View.VISIBLE
-    }
+        tvDashboardTitle.text = when (userRole) {
 
+            "kepala_gudang" ->
+                "DASHBOARD KEPALA GUDANG"
+
+            "staff_produksi" ->
+                "DASHBOARD STAFF PRODUKSI"
+
+            "quality_control" ->
+                "DASHBOARD QUALITY CONTROL"
+
+            else ->
+                "DASHBOARD"
+        }
+    }
     private fun setupMenu() {
+
         menuContainer.removeAllViews()
 
+        if (userRole == "kepala_gudang") {
+
+            val btnSP = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(160)
+                ).apply {
+                    bottomMargin = dpToPx(16)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_sp_kepala
+                )
+
+                setTextColor(getColor(android.R.color.white))
+                textSize = 18f
+
+                setOnClickListener {
+                    buatSuratPerintahProduksi()
+                }
+            }
+
+            menuContainer.addView(btnSP)
+
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+
+            val btnProduksi = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    dpToPx(140),
+                    1f
+                ).apply {
+                    marginEnd = dpToPx(8)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_laporanproduksi
+                )
+
+                setTextColor(getColor(android.R.color.white))
+                textSize = 16f
+
+                setOnClickListener {
+                    lihatLaporanProduksi()
+                }
+            }
+
+            val btnQC = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    dpToPx(140),
+                    1f
+                ).apply {
+                    marginStart = dpToPx(8)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_laporanqc
+                )
+
+                setTextColor(getColor(android.R.color.white))
+                textSize = 16f
+
+                setOnClickListener {
+                    lihatLaporanQC()
+                }
+            }
+
+            row.addView(btnProduksi)
+            row.addView(btnQC)
+
+            menuContainer.addView(row)
+
+            return
+        }
+        if (userRole == "staff_produksi") {
+
+            val btnSP = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(160)
+                ).apply {
+                    bottomMargin = dpToPx(16)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_lihatsp
+                )
+
+                setOnClickListener {
+                    lihatSuratPerintahBaru()
+                }
+            }
+
+            menuContainer.addView(btnSP)
+
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+
+            val btnProduksi = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    dpToPx(140),
+                    1f
+                ).apply {
+                    marginEnd = dpToPx(8)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_mulaiproduksi
+                )
+
+                setOnClickListener {
+                    mulaiProduksiBaru()
+                }
+            }
+
+            val btnHasil = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    dpToPx(140),
+                    1f
+                ).apply {
+                    marginStart = dpToPx(8)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_hasilproduksi
+                )
+
+                setOnClickListener {
+                    hasilProduksiBaru()
+                }
+            }
+
+            row.addView(btnProduksi)
+            row.addView(btnHasil)
+
+            menuContainer.addView(row)
+
+            return
+        }
         val menus = when (userRole) {
-            "kepala_gudang" -> listOf(
-                MenuItem("Buat Surat Perintah Produksi") { buatSuratPerintahProduksi() },
-                MenuItem("Laporan Produksi") { lihatLaporanProduksi() },
-                MenuItem("Laporan QC") { lihatLaporanQC() }
-            )
 
             "quality_control" -> listOf(
                 MenuItem("Inspeksi Kain") { inspeksiKain() },
-                MenuItem("Laporan QC") { showLaporanQC() },
-                MenuItem("Show Hasil QC") { showHasilQC() },
+                MenuItem("Show Hasil QC") { showHasilQC() }
             )
+
             else -> listOf(
-                MenuItem(" Lihat Surat Perintah") { lihatSuratPerintahBaru() },
-                MenuItem(" Mulai Produksi") { mulaiProduksiBaru() },
-                MenuItem(" Hasil Produksi") { hasilProduksiBaru() }
+                MenuItem("Lihat Surat Perintah") { lihatSuratPerintahBaru() },
+                MenuItem("Mulai Produksi") { mulaiProduksiBaru() },
+                MenuItem("Hasil Produksi") { hasilProduksiBaru() }
             )
         }
 
         for (menu in menus) {
+
             val button = Button(this).apply {
+
                 text = menu.title
+
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dpToPx(56)
                 ).apply {
                     bottomMargin = dpToPx(12)
                 }
-                background = AppCompatResources.getDrawable(this@DashboardActivity, R.drawable.bg_button)
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_button
+                )
+
                 setTextColor(getColor(android.R.color.white))
                 textSize = 16f
-                setOnClickListener { menu.action() }
+
+                setOnClickListener {
+                    menu.action()
+                }
             }
+
             menuContainer.addView(button)
         }
     }
 
     private fun setupListeners() {
-        btnLogout.setOnClickListener { showLogoutDialog() }
+        btnLogout.setOnClickListener {
+            showLogoutDialog()
+        }
     }
 
-    //menu staffgudang
+
+    //MENU STAFFGUDANG
     private fun lihatSuratPerintahBaru() {
 
-        val daftarSP = suratPerintah.filter {
-            it.status == "Menunggu Proses"
+        val view = layoutInflater.inflate(
+            R.layout.dialog_lihat_sp,
+            null
+        )
+
+        val containerSP =
+            view.findViewById<LinearLayout>(
+                R.id.containerSP
+            )
+
+        val btnSemua =
+            view.findViewById<Button>(
+                R.id.btnSemua
+            )
+
+        val btnMingguIni =
+            view.findViewById<Button>(
+                R.id.btnMingguIni
+            )
+
+        fun loadData(
+            data: List<SuratPerintah>
+        ) {
+
+            containerSP.removeAllViews()
+
+            if (data.isEmpty()) {
+
+                val tv = TextView(this)
+
+                tv.text =
+                    "Belum ada surat perintah"
+
+                tv.textSize = 16f
+
+                containerSP.addView(tv)
+
+                return
+            }
+
+            for (sp in data) {
+
+                val card =
+                    layoutInflater.inflate(
+                        R.layout.item_sp_card,
+                        containerSP,
+                        false
+                    )
+
+                card.findViewById<TextView>(
+                    R.id.tvIdSP
+                ).text =
+                    sp.id
+
+                card.findViewById<TextView>(
+                    R.id.tvDeadline
+                ).text =
+                    sp.deadline
+
+                card.findViewById<TextView>(
+                    R.id.tvJenisKain
+                ).text =
+                    sp.productName
+
+                card.findViewById<TextView>(
+                    R.id.tvStatus
+                ).text =
+                    sp.status
+
+                val tvStatus =
+                    card.findViewById<TextView>(
+                        R.id.tvStatus
+                    )
+
+                when (sp.status) {
+
+                    "Menunggu Proses" ->
+                        tvStatus.setTextColor(
+                            Color.parseColor("#F9A825")
+                        )
+
+                    "Selesai Produksi" ->
+                        tvStatus.setTextColor(
+                            Color.parseColor("#2E7D32")
+                        )
+                }
+
+                card.setOnClickListener {
+
+                    val detailView =
+                        layoutInflater.inflate(
+                            R.layout.dialog_detail_sp,
+                            null
+                        )
+
+                    detailView.findViewById<TextView>(
+                        R.id.tvDetailId
+                    ).text =
+                        sp.id
+
+                    detailView.findViewById<TextView>(
+                        R.id.tvDetailJenis
+                    ).text =
+                        sp.productName
+
+                    detailView.findViewById<TextView>(
+                        R.id.tvDetailJumlah
+                    ).text =
+                        "${sp.quantity} Meter"
+
+                    detailView.findViewById<TextView>(
+                        R.id.tvDetailDeadline
+                    ).text =
+                        sp.deadline
+
+                    detailView.findViewById<TextView>(
+                        R.id.tvDetailStatus
+                    ).text =
+                        sp.status
+
+                    val detailDialog =
+                        MaterialAlertDialogBuilder(this)
+                            .setView(detailView)
+                            .setPositiveButton(
+                                "TUTUP",
+                                null
+                            )
+                            .create()
+
+                    detailDialog.show()
+
+                    detailDialog.window?.setLayout(
+                        (resources.displayMetrics.widthPixels * 0.90).toInt(),
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+
+                containerSP.addView(card)
+            }
         }
 
-        if (daftarSP.isEmpty()) {
-            Toast.makeText(
-                this,
-                "Belum ada surat perintah yang menunggu proses",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
+        loadData(
+            suratPerintah.filter {
+                it.status == "Menunggu Proses"
+            }
+        )
+
+        btnSemua.setOnClickListener {
+
+            loadData(
+                suratPerintah.filter {
+                    it.status == "Menunggu Proses"
+                }
+            )
         }
 
-        var message = ""
+        btnMingguIni.setOnClickListener {
 
-        for (sp in daftarSP) {
+            val sdf =
+                SimpleDateFormat(
+                    "yyyy-MM-dd",
+                    Locale.getDefault()
+                )
 
-            message += " ${sp.id}\n"
-            message += " ${sp.productName}\n"
-            message += " ${sp.quantity} Meter\n"
-            message += " ${sp.deadline}\n"
-            message += " ${sp.status}\n"
-            message += "━━━━━━━━━━━━━━━━━━\n\n"
+            val today = Date()
+
+            val sevenDays =
+                Calendar.getInstance().apply {
+
+                    time = today
+
+                    add(
+                        Calendar.DAY_OF_YEAR,
+                        7
+                    )
+
+                }.time
+
+            val filtered =
+                suratPerintah.filter {
+
+                    it.status == "Menunggu Proses" &&
+
+                            try {
+
+                                val deadline =
+                                    sdf.parse(it.deadline)
+
+                                deadline != null &&
+                                        deadline.after(today) &&
+                                        deadline.before(sevenDays)
+
+                            } catch (e: Exception) {
+
+                                false
+                            }
+                }
+
+            loadData(filtered)
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle(" SURAT PERINTAH PRODUKSI")
-            .setMessage(message)
-            .setPositiveButton("TUTUP", null)
-            .show()
+        val dialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .create()
+
+        dialog.show()
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.95).toInt(),
+            (resources.displayMetrics.heightPixels * 0.95).toInt()
+        )
     }
-
     private fun mulaiProduksiBaru() {
 
         val spMenunggu = suratPerintah.filter {
@@ -178,261 +594,441 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         if (spMenunggu.isEmpty()) {
+
             Toast.makeText(
                 this,
                 "Tidak ada surat perintah yang siap diproduksi",
                 Toast.LENGTH_SHORT
             ).show()
+
             return
         }
 
-        val daftarSP = spMenunggu.map {
-            "${it.id} - ${it.productName}"
-        }.toTypedArray()
+        val view = layoutInflater.inflate(
+            R.layout.dialog_lihat_sp,
+            null
+        )
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Pilih Surat Perintah")
-            .setItems(daftarSP) { _, which ->
+        val containerSP =
+            view.findViewById<LinearLayout>(
+                R.id.containerSP
+            )
 
-                val selectedSP = spMenunggu[which]
+        val btnSemua =
+            view.findViewById<Button>(
+                R.id.btnSemua
+            )
 
-                val view = layoutInflater.inflate(
-                    R.layout.dialog_mulai_produksi,
-                    null
-                )
+        val btnMingguIni =
+            view.findViewById<Button>(
+                R.id.btnMingguIni
+            )
 
-                val tvInfoSP =
-                    view.findViewById<TextView>(R.id.tvInfoSP)
+        fun loadData(
+            data: List<SuratPerintah>
+        ) {
 
-                val spJenisProduksi =
-                    view.findViewById<Spinner>(R.id.spJenisProduksi)
+            containerSP.removeAllViews()
 
-                val etPanjangProduksi =
-                    view.findViewById<EditText>(R.id.etPanjangProduksi)
+            for (sp in data) {
 
-                val tvJenisError =
-                    view.findViewById<TextView>(R.id.tvJenisError)
+                val card =
+                    layoutInflater.inflate(
+                        R.layout.item_sp_card,
+                        containerSP,
+                        false
+                    )
 
-                val tvPanjangError =
-                    view.findViewById<TextView>(R.id.tvPanjangError)
+                card.findViewById<TextView>(
+                    R.id.tvIdSP
+                ).text = sp.id
 
-                val etCatatan =
-                    view.findViewById<EditText>(R.id.etCatatan)
+                card.findViewById<TextView>(
+                    R.id.tvJenisKain
+                ).text = sp.productName
 
-                tvInfoSP.text =
-                    "ID SP : ${selectedSP.id}\n" +
-                            "Jenis Kain : ${selectedSP.productName}\n" +
-                            "Panjang SP : ${selectedSP.quantity} Meter\n" +
-                            "Deadline : ${selectedSP.deadline}"
+                card.findViewById<TextView>(
+                    R.id.tvDeadline
+                ).text = sp.deadline
 
-                val jenisKain = arrayOf(
-                    "Katun",
-                    "Denim",
-                    "Polyester"
-                )
+                card.findViewById<TextView>(
+                    R.id.tvStatus
+                ).text = sp.status
+                val tvStatus =
+                    card.findViewById<TextView>(
+                        R.id.tvStatus
+                    )
 
-                val adapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    jenisKain
-                )
+                when (sp.status) {
 
-                adapter.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item
-                )
-
-                spJenisProduksi.adapter = adapter
-
-                // VALIDASI REALTIME PANJANG
-
-                etPanjangProduksi.addTextChangedListener(
-                    object : TextWatcher {
-
-                        override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            count: Int,
-                            after: Int
-                        ) {
-                        }
-
-                        override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int,
-                            before: Int,
-                            count: Int
-                        ) {
-
-                            val input =
-                                s.toString().toIntOrNull()
-
-                            if (input == null) {
-                                tvPanjangError.visibility =
-                                    View.GONE
-                                return
-                            }
-
-                            when {
-
-                                input < selectedSP.quantity -> {
-
-                                    etPanjangProduksi.setBackgroundColor(
-                                        Color.argb(
-                                            40,
-                                            255,
-                                            0,
-                                            0
-                                        )
-                                    )
-
-                                    tvPanjangError.visibility =
-                                        View.VISIBLE
-
-                                    tvPanjangError.text =
-                                        "Panjang kain kurang dari ketentuan surat perintah"
-                                }
-
-                                input > selectedSP.quantity + 10 -> {
-
-                                    etPanjangProduksi.setBackgroundColor(
-                                        Color.argb(
-                                            40,
-                                            255,
-                                            0,
-                                            0
-                                        )
-                                    )
-
-                                    tvPanjangError.visibility =
-                                        View.VISIBLE
-
-                                    tvPanjangError.text =
-                                        "Panjang kain melebihi ketentuan surat perintah"
-                                }
-
-                                else -> {
-
-                                    etPanjangProduksi.setBackgroundColor(
-                                        Color.TRANSPARENT
-                                    )
-
-                                    tvPanjangError.visibility =
-                                        View.GONE
-                                }
-                            }
-                        }
-
-                        override fun afterTextChanged(
-                            s: Editable?
-                        ) {
-                        }
-                    }
-                )
-
-                MaterialAlertDialogBuilder(this)
-                    .setTitle("Mulai Produksi")
-                    .setView(view)
-                    .setPositiveButton("SIMPAN") { _, _ ->
-
-                        val jenisDipilih =
-                            spJenisProduksi.selectedItem.toString()
-
-                        val panjangProduksi =
-                            etPanjangProduksi.text
-                                .toString()
-                                .toIntOrNull()
-
-                        if (
-                            jenisDipilih.lowercase() !=
-                            selectedSP.productName.lowercase()
-                        ) {
-
-                            tvJenisError.visibility =
-                                View.VISIBLE
-
-                            Toast.makeText(
-                                this,
-                                "Jenis kain tidak sesuai SP",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            return@setPositiveButton
-                        }
-
-                        if (panjangProduksi == null) {
-
-                            Toast.makeText(
-                                this,
-                                "Panjang kain harus diisi",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            return@setPositiveButton
-                        }
-
-                        if (
-                            panjangProduksi <
-                            selectedSP.quantity
-                        ) {
-
-                            Toast.makeText(
-                                this,
-                                "Panjang kain kurang dari SP",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            return@setPositiveButton
-                        }
-
-                        if (
-                            panjangProduksi >
-                            selectedSP.quantity + 10
-                        ) {
-
-                            Toast.makeText(
-                                this,
-                                "Panjang kain melebihi batas toleransi",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            return@setPositiveButton
-                        }
-
-                        // UPDATE SP
-
-                        selectedSP.quantity =
-                            panjangProduksi
-
-                        selectedSP.status =
-                            "Selesai Produksi"
-
-                        // SIMPAN HASIL PRODUKSI
-
-                        hasilProduksi.add(
-                            HasilProduksi(
-                                spId = selectedSP.id,
-                                productName = selectedSP.productName,
-                                quantity = panjangProduksi,
-                                unit = "Meter",
-                                tanggalSelesai = getCurrentDate(),
-                                statusQC = "Menunggu QC",
-                                notes = etCatatan.text.toString()
-                            )
+                    "Menunggu Proses" ->
+                        tvStatus.setTextColor(
+                            Color.parseColor("#F9A825")
                         )
 
-                        Toast.makeText(
-                            this,
-                            "Produksi berhasil disimpan",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    .setNegativeButton("BATAL", null)
-                    .show()
-            }
-            .setNegativeButton("TUTUP", null)
-            .show()
-    }
+                    "Selesai Produksi" ->
+                        tvStatus.setTextColor(
+                            Color.parseColor("#2E7D32")
+                        )
+                }
+                card.setOnClickListener {
 
+                    showFormProduksi(sp)
+                }
+
+                containerSP.addView(card)
+            }
+        }
+
+        loadData(spMenunggu)
+
+        btnSemua.setOnClickListener {
+
+            loadData(spMenunggu)
+        }
+
+        btnMingguIni.setOnClickListener {
+
+            val sdf =
+                SimpleDateFormat(
+                    "yyyy-MM-dd",
+                    Locale.getDefault()
+                )
+
+            val today = Date()
+
+            val sevenDays =
+                Calendar.getInstance().apply {
+
+                    time = today
+
+                    add(
+                        Calendar.DAY_OF_YEAR,
+                        7
+                    )
+
+                }.time
+
+            val filtered =
+                suratPerintah.filter {
+
+                    it.status == "Menunggu Proses" &&
+
+                            try {
+
+                                val deadline =
+                                    sdf.parse(it.deadline)
+
+                                deadline != null &&
+                                        deadline.after(today) &&
+                                        deadline.before(sevenDays)
+
+                            } catch (e: Exception) {
+
+                                false
+                            }
+                }
+            loadData(filtered)
+        }
+
+        val dialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .create()
+
+        dialog.show()
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.95).toInt(),
+            (resources.displayMetrics.heightPixels * 0.95).toInt()
+        )
+    }
+    private fun showFormProduksi(
+        selectedSP: SuratPerintah
+    ) {
+
+        val view = layoutInflater.inflate(
+            R.layout.dialog_mulai_produksi,
+            null
+        )
+
+        val tvSpId =
+            view.findViewById<TextView>(
+                R.id.tvSpId
+            )
+
+        val tvJenisKainInfo =
+            view.findViewById<TextView>(
+                R.id.tvJenisKainInfo
+            )
+
+        val tvPanjangInfo =
+            view.findViewById<TextView>(
+                R.id.tvPanjangInfo
+            )
+
+        val tvDeadlineInfo =
+            view.findViewById<TextView>(
+                R.id.tvDeadlineInfo
+            )
+
+        val spJenisProduksi =
+            view.findViewById<Spinner>(
+                R.id.spJenisProduksi
+            )
+
+        val etPanjangProduksi =
+            view.findViewById<EditText>(
+                R.id.etPanjangProduksi
+            )
+
+        val tvJenisError =
+            view.findViewById<TextView>(
+                R.id.tvJenisError
+            )
+
+        val tvPanjangError =
+            view.findViewById<TextView>(
+                R.id.tvPanjangError
+            )
+
+        val etCatatan =
+            view.findViewById<EditText>(
+                R.id.etCatatan
+            )
+
+        tvSpId.text =
+            selectedSP.id
+
+        tvJenisKainInfo.text =
+            selectedSP.productName
+
+        tvPanjangInfo.text =
+            "${selectedSP.quantity} Meter"
+
+        tvDeadlineInfo.text =
+            selectedSP.deadline
+
+        val jenisKain = arrayOf(
+            "Katun",
+            "Denim",
+            "Polyester"
+        )
+
+        val adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                jenisKain
+            )
+
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        spJenisProduksi.adapter = adapter
+        val posisiAwal =
+            jenisKain.indexOf(
+                selectedSP.productName
+            )
+
+        if (posisiAwal >= 0) {
+            spJenisProduksi.setSelection(
+                posisiAwal
+            )
+        }
+        // VALIDASI REALTIME
+
+        etPanjangProduksi.addTextChangedListener(
+            object : TextWatcher {
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+
+                    val input =
+                        s.toString().toIntOrNull()
+
+                    if (input == null) {
+
+                        tvPanjangError.visibility =
+                            View.GONE
+
+                        etPanjangProduksi.setBackgroundResource(
+                            R.drawable.bg_edittext
+                        )
+
+                        return
+                    }
+
+                    when {
+
+                        input < selectedSP.quantity -> {
+
+                            tvPanjangError.visibility =
+                                View.VISIBLE
+
+                            tvPanjangError.text =
+                                "Panjang kain kurang dari ketentuan surat perintah"
+
+                            etPanjangProduksi.setBackgroundResource(
+                                R.drawable.bg_error
+                            )
+                        }
+
+                        input > selectedSP.quantity + 10 -> {
+
+                            tvPanjangError.visibility =
+                                View.VISIBLE
+
+                            tvPanjangError.text =
+                                "Panjang kain melebihi toleransi 10 meter"
+
+                            etPanjangProduksi.setBackgroundResource(
+                                R.drawable.bg_error
+                            )
+                        }
+
+                        else -> {
+
+                            tvPanjangError.visibility =
+                                View.GONE
+
+                            etPanjangProduksi.setBackgroundResource(
+                                R.drawable.bg_edittext
+                            )
+                        }
+                    }
+                }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {}
+            }
+        )
+
+        val dialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setNegativeButton(
+                    "KEMBALI",
+                    null
+                )
+                .setPositiveButton(
+                    "SIMPAN PRODUKSI",
+                    null
+                )
+                .create()
+
+        dialog.show()
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.95).toInt(),
+            (resources.displayMetrics.heightPixels * 0.90).toInt()
+        )
+
+        dialog.getButton(
+            android.app.AlertDialog.BUTTON_POSITIVE
+        ).setOnClickListener {
+
+            val jenisDipilih =
+                spJenisProduksi.selectedItem.toString()
+
+            val panjangProduksi =
+                etPanjangProduksi.text
+                    .toString()
+                    .toIntOrNull()
+
+            var valid = true
+
+            if (
+                jenisDipilih.lowercase()
+                !=
+                selectedSP.productName.lowercase()
+            ) {
+
+                tvJenisError.visibility =
+                    View.VISIBLE
+
+                valid = false
+            }
+            else {
+
+                tvJenisError.visibility =
+                    View.GONE
+            }
+
+            if (panjangProduksi == null) {
+
+                tvPanjangError.visibility =
+                    View.VISIBLE
+
+                tvPanjangError.text =
+                    "Panjang kain wajib diisi"
+
+                etPanjangProduksi.setBackgroundResource(
+                    R.drawable.bg_error
+                )
+
+                valid = false
+            }
+
+            if (!valid) {
+                return@setOnClickListener
+            }
+
+            if (
+                panjangProduksi!! <
+                selectedSP.quantity
+            ) {
+                return@setOnClickListener
+            }
+
+            if (
+                panjangProduksi >
+                selectedSP.quantity + 10
+            ) {
+                return@setOnClickListener
+            }
+
+            // STATUS SELESAI PRODUKSI
+
+            selectedSP.status =
+                "Selesai Produksi"
+
+            // SIMPAN HASIL PRODUKSI
+
+            hasilProduksi.add(
+                HasilProduksi(
+                    spId = selectedSP.id,
+                    productName = selectedSP.productName,
+                    quantity = panjangProduksi,
+                    unit = "Meter",
+                    tanggalSelesai = getCurrentDate(),
+                    statusQC = "Menunggu QC",
+                    notes = etCatatan.text.toString()
+                )
+            )
+
+            Toast.makeText(
+                this,
+                "Produksi berhasil disimpan",
+                Toast.LENGTH_LONG
+            ).show()
+
+            dialog.dismiss()
+        }
+    }
     private fun hasilProduksiBaru() {
 
         if (hasilProduksi.isEmpty()) {
@@ -485,7 +1081,10 @@ class DashboardActivity : AppCompatActivity() {
                                 unit = hasil.unit,
                                 tanggalKirim = getCurrentDate(),
                                 noQC = "QC${String.format("%03d", dikirimKeQC.size + 1)}",
-                                status = "Menunggu Inspeksi"
+
+                                grade = "-",
+                                detailQC = "-",
+                                statusKain = "Menunggu QC"
                             )
                         )
 
@@ -501,19 +1100,35 @@ class DashboardActivity : AppCompatActivity() {
             .setNegativeButton("TUTUP", null)
             .show()
     }
-    // ==================== MENU KEPALA GUDANG ====================
+    // MENU KEPALA GUDANG
 
     private fun buatSuratPerintahProduksi() {
 
-        val inputView = layoutInflater.inflate(R.layout.dialog_surat_perintah, null)
+        val inputView =
+            layoutInflater.inflate(
+                R.layout.dialog_surat_perintah,
+                null
+            )
 
-        val tvSpId = inputView.findViewById<TextView>(R.id.tvSpId)
-        val spJenisKain = inputView.findViewById<android.widget.Spinner>(R.id.spJenisKain)
-        val etPanjangKain = inputView.findViewById<EditText>(R.id.etPanjangKain)
-        val etDeadline = inputView.findViewById<EditText>(R.id.etDeadline)
+        val tvSpId =
+            inputView.findViewById<TextView>(R.id.tvSpId)
 
-        val spId = "SP${String.format("%03d", suratPerintah.size + 1)}"
-        tvSpId.text = "ID Surat: $spId"
+        val spJenisKain =
+            inputView.findViewById<Spinner>(R.id.spJenisKain)
+
+        val etPanjangKain =
+            inputView.findViewById<EditText>(R.id.etPanjangKain)
+
+        val etDeadline =
+            inputView.findViewById<EditText>(R.id.etDeadline)
+
+        val tvPanjangError =
+            inputView.findViewById<TextView>(R.id.tvPanjangError)
+
+        val spId =
+            "SP${String.format("%03d", suratPerintah.size + 1)}"
+
+        tvSpId.text = "ID Surat : $spId"
 
         val jenisKain = arrayOf(
             "Katun",
@@ -521,33 +1136,117 @@ class DashboardActivity : AppCompatActivity() {
             "Polyester"
         )
 
-        val adapter = android.widget.ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            jenisKain
+        val adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                jenisKain
+            )
+
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
         )
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spJenisKain.adapter = adapter
+
+        // VALIDASI REALTIME
+
+        etPanjangKain.addTextChangedListener(
+            object : TextWatcher {
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+
+                    val panjang =
+                        s.toString().toIntOrNull()
+
+                    when {
+
+                        panjang == null -> {
+
+                            tvPanjangError.visibility =
+                                View.GONE
+
+                            etPanjangKain.setBackgroundResource(
+                                R.drawable.bg_edittext
+                            )
+                        }
+
+                        panjang < 100 -> {
+
+                            tvPanjangError.visibility =
+                                View.VISIBLE
+
+                            tvPanjangError.text =
+                                "Anda tidak bisa membuat kain dibawah 100 meter"
+
+                            etPanjangKain.setBackgroundResource(
+                                R.drawable.bg_error
+                            )
+                        }
+
+                        panjang > 300 -> {
+
+                            tvPanjangError.visibility =
+                                View.VISIBLE
+
+                            tvPanjangError.text =
+                                "Anda tidak bisa membuat kain di atas 300 meter"
+
+                            etPanjangKain.setBackgroundResource(
+                                R.drawable.bg_error
+                            )
+                        }
+
+                        else -> {
+
+                            tvPanjangError.visibility =
+                                View.GONE
+
+                            etPanjangKain.setBackgroundResource(
+                                R.drawable.bg_edittext
+                            )
+                        }
+                    }
+                }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {
+                }
+            }
+        )
+
+        // DATE PICKER
 
         etDeadline.setOnClickListener {
 
             val calendar = Calendar.getInstance()
 
-            android.app.DatePickerDialog(
+            DatePickerDialog(
                 this,
-                { _, year, month, dayOfMonth ->
+                { _, year, month, day ->
 
-                    val tanggal =
+                    etDeadline.setText(
                         String.format(
                             "%04d-%02d-%02d",
                             year,
                             month + 1,
-                            dayOfMonth
+                            day
                         )
-
-                    etDeadline.setText(tanggal)
-
+                    )
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -555,52 +1254,168 @@ class DashboardActivity : AppCompatActivity() {
             ).show()
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Surat Perintah Produksi")
-            .setView(inputView)
-            .setPositiveButton("SIMPAN") { _, _ ->
+        val dialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(inputView)
+                .setNegativeButton("KEMBALI", null)
+                .setPositiveButton("BUAT SURAT", null)
+                .create()
 
-                val panjangStr = etPanjangKain.text.toString()
-                val deadline = etDeadline.text.toString()
+        dialog.show()
 
-                if (panjangStr.isEmpty() || deadline.isEmpty()) {
-                    Toast.makeText(
-                        this,
-                        "Semua data harus diisi",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.95).toInt(),
+            (resources.displayMetrics.heightPixels * 0.90).toInt()
+        )
+
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+            .setOnClickListener {
+
+                val panjangStr =
+                    etPanjangKain.text.toString()
+
+                val deadline =
+                    etDeadline.text.toString()
+
+                var valid = true
+
+                if (panjangStr.isEmpty()) {
+
+                    etPanjangKain.setBackgroundResource(
+                        R.drawable.bg_error
+                    )
+
+                    tvPanjangError.visibility =
+                        View.VISIBLE
+
+                    tvPanjangError.text =
+                        "Panjang kain wajib diisi"
+
+                    valid = false
                 }
 
-                val panjang = panjangStr.toInt()
+                if (deadline.isEmpty()) {
+
+                    etDeadline.setBackgroundResource(
+                        R.drawable.bg_error
+                    )
+
+                    valid = false
+                }
+
+                if (!valid) {
+                    return@setOnClickListener
+                }
+
+                val panjang =
+                    panjangStr.toInt()
 
                 if (panjang < 100 || panjang > 300) {
-                    Toast.makeText(
-                        this,
-                        "Panjang kain harus 100 - 300 meter",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
+                    return@setOnClickListener
                 }
 
-                val dataBaru = SuratPerintah(
-                    id = spId,
-                    productName = spJenisKain.selectedItem.toString(),
-                    quantity = panjang,
-                    unit = "Meter",
-                    deadline = deadline,
-                    status = "Menunggu Proses"
+                val konfirmasiView =
+                    layoutInflater.inflate(
+                        R.layout.dialog_konfirmasi_sp,
+                        null
+                    )
+
+                konfirmasiView.findViewById<TextView>(
+                    R.id.tvKonfirmasiId
+                ).text =
+                    "ID Surat : $spId"
+
+                konfirmasiView.findViewById<TextView>(
+                    R.id.tvKonfirmasiJenis
+                ).text =
+                    "Jenis Kain : ${spJenisKain.selectedItem}"
+
+                konfirmasiView.findViewById<TextView>(
+                    R.id.tvKonfirmasiJumlah
+                ).text =
+                    "Jumlah Produksi : $panjang Meter"
+
+                konfirmasiView.findViewById<TextView>(
+                    R.id.tvKonfirmasiDeadline
+                ).text =
+                    "Deadline Produksi : $deadline"
+
+                val konfirmasiDialog =
+                    MaterialAlertDialogBuilder(this)
+                        .setView(konfirmasiView)
+                        .setNegativeButton("BATAL", null)
+                        .setPositiveButton("SIMPAN") { _, _ ->
+
+                            val dataBaru =
+                                SuratPerintah(
+                                    id = spId,
+                                    productName = spJenisKain.selectedItem.toString(),
+                                    quantity = panjang,
+                                    unit = "Meter",
+                                    deadline = deadline,
+                                    status = "Menunggu Proses"
+                                )
+
+                            suratPerintah.add(dataBaru)
+
+                            val successView =
+                                layoutInflater.inflate(
+                                    R.layout.dialog_sukses_sp,
+                                    null
+                                )
+
+                            successView.findViewById<TextView>(
+                                R.id.tvSuccessSpId
+                            ).text =
+                                "ID Surat : $spId"
+
+                            val successDialog =
+                                MaterialAlertDialogBuilder(this)
+                                    .setView(successView)
+                                    .setPositiveButton("TUTUP") { _, _ ->
+                                        dialog.dismiss()
+                                    }
+                                    .create()
+
+                            successDialog.show()
+
+                            successDialog.window?.setLayout(
+                                (resources.displayMetrics.widthPixels * 0.90).toInt(),
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                        }
+                        .create()
+
+                konfirmasiDialog.show()
+
+                konfirmasiDialog.window?.setLayout(
+                    (resources.displayMetrics.widthPixels * 0.90).toInt(),
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-
-                suratPerintah.add(dataBaru)
-
-                Toast.makeText(
-                    this,
-                    "Surat Perintah $spId berhasil dibuat",
-                    Toast.LENGTH_LONG
-                ).show()
             }
-            .setNegativeButton("BATAL", null)
+    }
+    private fun showHasilQC() {
+        val listQC = dikirimKeQC.filter { it.statusKain != "Menunggu QC" }
+
+        if (listQC.isEmpty()) {
+            Toast.makeText(this, "Belum ada hasil inspeksi QC", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        var message = ""
+        for (qc in listQC) {
+            message += "No QC: ${qc.noQC}\n"
+            message += "SP ID: ${qc.spId}\n"
+            message += "Produk: ${qc.productName}\n"
+            message += "Grade: ${qc.grade}\n"
+            message += "Status: ${qc.statusKain}\n"
+            message += "━━━━━━━━━━━━━━━━━━\n\n"
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Hasil Inspeksi QC")
+            .setMessage(message)
+            .setPositiveButton("TUTUP", null)
             .show()
     }
 
@@ -628,115 +1443,149 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun lihatLaporanQC() {
+
+        val dataQC = dikirimKeQC.filter {
+            it.statusKain != "Menunggu QC"
+        }
+
+        if (dataQC.isEmpty()) {
+            Toast.makeText(
+                this,
+                "Belum ada data hasil QC",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        var jumlahLulus = 0
+        var jumlahGagal = 0
+
+        var message = "LAPORAN QC\n━━━━━━━━━━━━━━━━━━\n\n"
+
+        for (qc in dataQC) {
+
+            if (qc.statusKain == "Lulus") {
+                jumlahLulus++
+            } else if (qc.statusKain == "Gagal") {
+                jumlahGagal++
+            }
+
+            message += "No QC : ${qc.noQC}\n"
+            message += "SP ID : ${qc.spId}\n"
+            message += "Jenis Kain : ${qc.productName}\n"
+            message += "Panjang : ${qc.quantity} Meter\n"
+            message += "Grade : ${qc.grade}\n"
+            message += "Status Kain : ${qc.statusKain}\n"
+            message += "Detail : ${qc.detailQC}\n"
+            message += "━━━━━━━━━━━━━━━━━━\n\n"
+        }
+
+        message += "\nTOTAL LULUS : $jumlahLulus\n"
+        message += "TOTAL GAGAL : $jumlahGagal"
+
         MaterialAlertDialogBuilder(this)
             .setTitle("Laporan QC")
-            .setMessage(
-                "Menampilkan seluruh hasil produksi yang sudah diperiksa QC.\n\n" +
-                        "Status:\n" +
-                        "• Menunggu QC\n" +
-                        "• Selesai QC\n\n" +
-                        "Fitur detail QC akan dibuat setelah modul QC selesai."
-            )
+            .setMessage(message)
             .setPositiveButton("TUTUP", null)
             .show()
     }
 
-    // ==================== MENU QUALITY CONTROL ====================
+    //MENU QUALITY CONTROL
 
-    private fun inspeksiKain() {
-        val spList = dikirimKeQC.map {
-            "${it.noQC} - ${it.productName}"
-        }.toTypedArray()
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("🔍 PILIH PRODUK UNTUK INSPEKSI")
-            .setItems(spList) { _, which ->
-                val selectedQC = dikirimKeQC[which]
-                showInspeksiDialogQC(selectedQC)
-            }
-            .setNegativeButton("BATAL", null)
-            .show()
-    }
     private fun showInspeksiDialogQC(qc: KirimQC) {
+
+        val view =
+            layoutInflater.inflate(
+                R.layout.dialog_inspeksi_qc,
+                null
+            )
+
+        val tvInfoQC =
+            view.findViewById<TextView>(R.id.tvInfoQC)
+
+        val spGrade =
+            view.findViewById<Spinner>(R.id.spGrade)
+
+        val etDetailQC =
+            view.findViewById<EditText>(R.id.etDetailQC)
+
+        tvInfoQC.text =
+            "No QC : ${qc.noQC}\n" +
+                    "Jenis Kain : ${qc.productName}\n" +
+                    "Panjang : ${qc.quantity} Meter"
+
+        val gradeList = arrayOf(
+            "A",
+            "B",
+            "C"
+        )
+
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            gradeList
+        )
+
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        spGrade.adapter = adapter
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Inspeksi Kain")
-            .setMessage(
-                "No QC : ${qc.noQC}\n" +
-                        "Jenis Kain : ${qc.productName}\n" +
-                        "Panjang : ${qc.quantity} Meter\n\n" +
-                        "Data berhasil diterima QC."
-            )
-            .setPositiveButton("TUTUP", null)
-            .show()
-    }
-    private fun showInspeksiDialog(sp: SuratPerintah) {
-        val inputView = layoutInflater.inflate(R.layout.dialog_inspection, null)
-        val etQuantity = inputView.findViewById<EditText>(R.id.etInspectQuantity)
-        val etNotes = inputView.findViewById<EditText>(R.id.etInspectNotes)
-        val rgResult = inputView.findViewById<android.widget.RadioGroup>(R.id.rgInspectResult)
-
-        etQuantity.hint = "Jumlah yang diinspeksi (${sp.unit})"
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("🔍 INSPEKSI: ${sp.productName}")
-            .setView(inputView)
+            .setView(view)
             .setPositiveButton("SIMPAN") { _, _ ->
-                val quantity = etQuantity.text.toString()
-                val notes = etNotes.text.toString()
-                val result = if (rgResult.checkedRadioButtonId == R.id.rbPass) "Lulus" else "Gagal"
 
-                Toast.makeText(this, "✅ Inspeksi selesai: $result\nCatatan: ${notes.ifEmpty { "-" }}", Toast.LENGTH_SHORT).show()
+                val grade =
+                    spGrade.selectedItem.toString()
+
+                val detail =
+                    etDetailQC.text.toString()
+
+                qc.grade = grade
+                qc.detailQC = detail
+
+                qc.statusKain =
+                    if (
+                        grade == "A" ||
+                        grade == "B"
+                    ) {
+                        "Lulus"
+                    } else {
+                        "Gagal"
+                    }
+
+                Toast.makeText(
+                    this,
+                    "Data QC berhasil disimpan",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             .setNegativeButton("BATAL", null)
             .show()
     }
 
-    private fun showLaporanQC() {
-        var message = "📋 LAPORAN QC\n━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        var lulus = 0
-        var gagal = 0
+    private fun inspeksiKain() {
+        val listQC = dikirimKeQC.filter { it.statusKain == "Menunggu QC" }
 
-        for (qc in dikirimKeQC) {
-            message += "🧵 ${qc.productName}\n"
-            message += "   📏 Jumlah: ${qc.quantity} ${qc.unit}\n"
-            message += "   🔢 No. QC: ${qc.noQC}\n"
-            message += "   📊 Status: ${qc.status}\n\n"
-
-            if (qc.status == "Menunggu Inspeksi") lulus++
-            else gagal++
+        if (listQC.isEmpty()) {
+            Toast.makeText(this, "Tidak ada data kain yang perlu diperiksa", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        if (dikirimKeQC.isEmpty()) {
-            message += "Belum ada data QC"
-        } else {
-            message += "━━━━━━━━━━━━━━━━━━━━━━\n"
-            message += "✅ Menunggu Inspeksi: $lulus\n"
-            message += "❌ Gagal: $gagal"
-        }
+        val items = listQC.map { "${it.noQC} - ${it.productName}" }.toTypedArray()
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Laporan QC")
-            .setMessage(message)
-            .setPositiveButton("TUTUP", null)
+            .setTitle("Pilih Kain untuk Inspeksi")
+            .setItems(items) { _, which ->
+                showInspeksiDialogQC(listQC[which])
+            }
+            .setNegativeButton("BATAL", null)
             .show()
     }
 
-    private fun showHasilQC() {
-        var message = "HASIL QC\n\n"
 
-        val lulus = dikirimKeQC.filter { it.status == "Lulus" }
-        val gagal = dikirimKeQC.filter { it.status == "Gagal" }
-
-        message += "KAIN LULUS: ${lulus.size}\n"
-        message += "KAIN GAGAL: ${gagal.size}\n"
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Hasil QC")
-            .setMessage(message)
-            .setPositiveButton("TUTUP", null)
-            .show()
-    }
 
 
     // ==================== UTILITY ====================
@@ -799,6 +1648,9 @@ class DashboardActivity : AppCompatActivity() {
         val unit: String,
         val tanggalKirim: String,
         val noQC: String,
-        val status: String
+
+        var grade: String = "-",
+        var detailQC: String = "-",
+        var statusKain: String = "Menunggu QC"
     )
 }
