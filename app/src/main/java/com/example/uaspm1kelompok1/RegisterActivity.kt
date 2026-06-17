@@ -1,9 +1,12 @@
 package com.example.uaspm1kelompok1
 
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -12,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -43,6 +47,10 @@ class RegisterActivity : AppCompatActivity() {
     private var selectedRole: String = "staff_produksi"
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+
+    companion object {
+        private const val USER_DATA_PREFS = "USER_DATA"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,89 +98,31 @@ class RegisterActivity : AppCompatActivity() {
     private fun setupRealTimeValidation() {
         // Validasi Email
         etEmail.addTextChangedListener(object : TextWatcher {
-
             override fun afterTextChanged(s: Editable?) {
-
                 val email = s.toString().trim()
-
-                if (
-                    email.isNotEmpty() &&
-                    (!email.contains("@") || !email.lowercase().endsWith(".com"))
-                ) {
-
-                    etEmail.background =
-                        ContextCompat.getDrawable(
-                            this@RegisterActivity,
-                            R.drawable.bg_bordersalah
-                        )
-
+                if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    etEmail.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
+                    etEmail.error = "Format email tidak valid"
                 } else {
-
-                    etEmail.background =
-                        ContextCompat.getDrawable(
-                            this@RegisterActivity,
-                            R.drawable.bg_edittext
-                        )
+                    etEmail.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
+                    etEmail.error = null
                 }
             }
-
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {}
-
-            override fun onTextChanged(
-                s: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
         // Validasi Phone
         etPhone.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {}
-
-            override fun onTextChanged(
-                s: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {}
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-
                 val phone = s.toString()
-
-                if (
-                    phone.isNotEmpty() &&
-                    !phone.matches(Regex("^08[0-9]{8,12}$"))
-                ) {
-
-                    etPhone.background =
-                        ContextCompat.getDrawable(
-                            this@RegisterActivity,
-                            R.drawable.bg_bordersalah
-                        )
-
+                if (phone.isNotEmpty() && !phone.matches(Regex("^08[0-9]{8,12}$"))) {
+                    etPhone.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
                     tvPhoneError.visibility = View.VISIBLE
-
                 } else {
-
-                    etPhone.background =
-                        ContextCompat.getDrawable(
-                            this@RegisterActivity,
-                            R.drawable.bg_edittext
-                        )
-
+                    etPhone.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
                     tvPhoneError.visibility = View.GONE
                 }
             }
@@ -194,48 +144,163 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         btnRegister.setOnClickListener {
-            if (etFullName.text.isEmpty() || etEmail.text.isEmpty() || etPhone.text.isEmpty() ||
-                etPassword.text.isEmpty() || !cbTerms.isChecked || selectedGender.isEmpty()) {
-                showCustomDialog("Perhatian", "Silahkan lengkapi data Anda!", false) { }
-            } else {
-                showCustomDialog("Konfirmasi", "Apakah data Anda telah sesuai?", true) {
-                    showSuccessDialog()
-                }
+            if (!validateForm()) {
+                return@setOnClickListener
             }
+            performRegistration()
         }
         tvBackToLogin.setOnClickListener { finish() }
     }
 
-    private fun showCustomDialog(title: String, message: String, isConfirm: Boolean, onConfirm: () -> Unit) {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_custom)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    /**
+     * Validasi semua form sebelum register
+     */
+    private fun validateForm(): Boolean {
+        val fullName = etFullName.text.toString().trim()
+        val email = etEmail.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+        val password = etPassword.text.toString().trim()
+        val confirmPassword = etConfirmPassword.text.toString().trim()
 
-        val tvMsg = dialog.findViewById<TextView>(R.id.tvMessage)
-        val btnPositive = dialog.findViewById<Button>(R.id.btnPositive)
-        val btnNegative = dialog.findViewById<Button>(R.id.btnNegative)
-
-        tvMsg.text = message
-        btnPositive.text = if (isConfirm) "Lanjutkan" else "OK"
-        if (!isConfirm) btnNegative.visibility = View.GONE
-
-        btnPositive.setOnClickListener {
-            onConfirm()
-            dialog.dismiss()
+        if (fullName.isEmpty()) {
+            etFullName.error = "Nama lengkap harus diisi"
+            etFullName.requestFocus()
+            return false
         }
-        btnNegative.setOnClickListener { dialog.dismiss() }
-        dialog.show()
+        if (fullName.length < 3) {
+            etFullName.error = "Nama minimal 3 karakter"
+            etFullName.requestFocus()
+            return false
+        }
+        if (email.isEmpty()) {
+            etEmail.error = "Email harus diisi"
+            etEmail.requestFocus()
+            return false
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.error = "Format email tidak valid"
+            etEmail.requestFocus()
+            return false
+        }
+        if (selectedGender.isEmpty()) {
+            Toast.makeText(this, "Pilih jenis kelamin", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (phone.isEmpty()) {
+            etPhone.error = "Nomor WhatsApp harus diisi"
+            etPhone.requestFocus()
+            return false
+        }
+        if (!phone.matches(Regex("^08[0-9]{8,12}$"))) {
+            etPhone.error = "Nomor harus 08 (minimal 10 digit)"
+            etPhone.requestFocus()
+            return false
+        }
+        if (password.isEmpty()) {
+            etPassword.error = "Password harus diisi"
+            etPassword.requestFocus()
+            return false
+        }
+        if (password.length < 6) {
+            etPassword.error = "Password minimal 6 karakter"
+            etPassword.requestFocus()
+            return false
+        }
+        if (password != confirmPassword) {
+            etConfirmPassword.error = "Password tidak cocok"
+            etConfirmPassword.requestFocus()
+            return false
+        }
+        if (!cbTerms.isChecked) {
+            Toast.makeText(this, "Setujui syarat & ketentuan", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        // CEK APAKAH EMAIL SUDAH TERDAFTAR
+        if (isEmailRegistered(email)) {
+            etEmail.error = "Email sudah terdaftar!"
+            etEmail.requestFocus()
+            Toast.makeText(this, "Email sudah terdaftar, gunakan email lain", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * Cek apakah email sudah terdaftar
+     */
+    private fun isEmailRegistered(email: String): Boolean {
+        val prefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
+        return prefs.contains("user_$email")
+    }
+
+    /**
+     * Simpan data user ke SharedPreferences
+     */
+    private fun saveUserData(user: UserData) {
+        val prefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
+        val userDataString = "${user.name}|${user.email}|${user.phone}|${user.gender}|${user.role}|${user.password}"
+        prefs.edit().putString("user_${user.email}", userDataString).apply()
+    }
+
+    private fun performRegistration() {
+        val fullName = etFullName.text.toString().trim()
+        val email = etEmail.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+        val password = etPassword.text.toString().trim()
+
+        setLoadingState(true)
+
+        // Simulasi proses registrasi
+        Handler(Looper.getMainLooper()).postDelayed({
+            // Simpan data user
+            val userData = UserData(
+                name = fullName,
+                email = email,
+                phone = phone,
+                gender = selectedGender,
+                role = selectedRole,
+                password = password
+            )
+            saveUserData(userData)
+
+            setLoadingState(false)
+            showSuccessDialog()
+        }, 1500)
     }
 
     private fun showSuccessDialog() {
-        Toast.makeText(this, "Selamat, Anda telah terdaftar!", Toast.LENGTH_LONG).show()
-        finish()
+        val roleName = when (selectedRole) {
+            "kepala_gudang" -> "Kepala Gudang"
+            "quality_control" -> "Quality Control"
+            else -> "Staff Produksi"
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("🎉 Registrasi Berhasil!")
+            .setMessage("Akun Anda telah berhasil didaftarkan sebagai $roleName.\n\nSilakan login untuk melanjutkan.")
+            .setPositiveButton("Login Sekarang") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun setupPasswordStrengthChecker() {
         etPassword.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { updatePasswordStrength(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                val password = s.toString()
+                updatePasswordStrength(password)
+                // Cek kecocokan password dengan konfirmasi
+                if (etConfirmPassword.text.toString().isNotEmpty()) {
+                    if (password != etConfirmPassword.text.toString()) {
+                        etConfirmPassword.error = "Password tidak cocok"
+                    } else {
+                        etConfirmPassword.error = null
+                    }
+                }
+            }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -251,12 +316,24 @@ class RegisterActivity : AppCompatActivity() {
             s
         }
         resetStrengthBars()
-        val colors = listOf(android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light, android.R.color.holo_green_dark)
+        val colors = listOf(
+            android.R.color.holo_red_light,
+            android.R.color.holo_orange_light,
+            android.R.color.holo_green_light,
+            android.R.color.holo_green_dark
+        )
         val bars = listOf(strengthBar1, strengthBar2, strengthBar3, strengthBar4)
-        for (i in 0 until strength) {
+        for (i in 0 until strength.coerceAtMost(4)) {
             bars[i].setBackgroundColor(ContextCompat.getColor(this, colors[i]))
         }
-        tvPasswordStrength.text = when(strength) { 1 -> "Lemah"; 2 -> "Sedang"; 3 -> "Kuat"; 4 -> "Sangat Kuat"; else -> "" }
+        tvPasswordStrength.text = when(strength) {
+            0 -> ""
+            1 -> "⚠️ Lemah"
+            2 -> "🟠 Sedang"
+            3 -> "🟢 Kuat"
+            4 -> "✅ Sangat Kuat"
+            else -> ""
+        }
     }
 
     private fun resetStrengthBars() {
@@ -267,25 +344,56 @@ class RegisterActivity : AppCompatActivity() {
     private fun setupPasswordToggles() {
         btnTogglePassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
-            etPassword.inputType = if (isPasswordVisible) InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            etPassword.inputType = if (isPasswordVisible) {
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
             btnTogglePassword.setImageResource(if (isPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_close)
             etPassword.setSelection(etPassword.text.length)
         }
         btnToggleConfirmPassword.setOnClickListener {
             isConfirmPasswordVisible = !isConfirmPasswordVisible
-            etConfirmPassword.inputType = if (isConfirmPasswordVisible) InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            etConfirmPassword.inputType = if (isConfirmPasswordVisible) {
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
             btnToggleConfirmPassword.setImageResource(if (isConfirmPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_close)
             etConfirmPassword.setSelection(etConfirmPassword.text.length)
         }
     }
 
     private fun setupRoleSpinner() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Staff Produksi", "Kepala Gudang", "Quality Control"))
+        val roles = listOf("Staff Produksi", "Kepala Gudang", "Quality Control")
+        val roleValues = listOf("staff_produksi", "kepala_gudang", "quality_control")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, roles)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spRole.adapter = adapter
         spRole.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>, p1: View?, p2: Int, p3: Long) { selectedRole = listOf("staff_produksi", "kepala_gudang", "quality_control")[p2] }
-            override fun onNothingSelected(p0: AdapterView<*>) {}
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedRole = roleValues[position]
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedRole = "staff_produksi"
+            }
         }
+    }
+
+    private fun setLoadingState(isLoading: Boolean) {
+        btnRegister.isEnabled = !isLoading
+        btnRegister.text = if (isLoading) "" else "DAFTAR"
+        progressBar.visibility = if (isLoading) ProgressBar.VISIBLE else ProgressBar.GONE
+        tvLoading.visibility = if (isLoading) TextView.VISIBLE else TextView.GONE
+        etFullName.isEnabled = !isLoading
+        etEmail.isEnabled = !isLoading
+        etPhone.isEnabled = !isLoading
+        etPassword.isEnabled = !isLoading
+        etConfirmPassword.isEnabled = !isLoading
+        cbTerms.isEnabled = !isLoading
+        rgGender.isEnabled = !isLoading
+        spRole.isEnabled = !isLoading
+        btnTogglePassword.isEnabled = !isLoading
+        btnToggleConfirmPassword.isEnabled = !isLoading
     }
 }

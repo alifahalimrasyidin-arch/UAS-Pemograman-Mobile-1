@@ -33,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         private const val PREFS_NAME = "TIASA_PREFS"
+        private const val USER_DATA_PREFS = "USER_DATA" // Untuk menyimpan data register
         private const val KEY_IS_LOGIN = "is_login"
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_NAME = "user_name"
@@ -92,19 +93,60 @@ class LoginActivity : AppCompatActivity() {
     private fun setupPasswordToggle() {
         btnTogglePassword.setOnClickListener {
             if (isPasswordVisible) {
-                // Sembunyikan password
                 etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 btnTogglePassword.setImageResource(R.drawable.ic_eye_close)
                 isPasswordVisible = false
             } else {
-                // Tampilkan password
                 etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 btnTogglePassword.setImageResource(R.drawable.ic_eye_open)
                 isPasswordVisible = true
             }
-            // Pindahkan kursor ke akhir teks
             etPassword.setSelection(etPassword.text.length)
         }
+    }
+
+    /**
+     * Cek apakah email sudah terdaftar di data register
+     */
+    private fun isEmailRegistered(email: String): Boolean {
+        val userPrefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
+        return userPrefs.contains("user_$email")
+    }
+
+    /**
+     * Ambil data user dari SharedPreferences berdasarkan email
+     * @return UserData atau null jika tidak ditemukan
+     */
+    private fun getRegisteredUser(email: String): UserData? {
+        val userPrefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
+        val userDataString = userPrefs.getString("user_$email", null)
+
+        if (userDataString != null) {
+            val parts = userDataString.split("|")
+            if (parts.size >= 6) {
+                return UserData(
+                    name = parts[0],
+                    email = parts[1],
+                    phone = parts[2],
+                    gender = parts[3],
+                    role = parts[4],
+                    password = parts[5]
+                )
+            }
+        }
+        return null
+    }
+
+    /**
+     * Cek login dari data register
+     * @return role jika berhasil, null jika gagal
+     */
+    private fun checkRegisteredUserLogin(email: String, password: String): String? {
+        val user = getRegisteredUser(email)
+        if (user != null && user.password == password) {
+            return user.role
+        }
+        return null
     }
 
     private fun performLogin() {
@@ -152,23 +194,39 @@ class LoginActivity : AppCompatActivity() {
         setLoadingState(true)
 
         Handler(Looper.getMainLooper()).postDelayed({
+            // CEK APAKAH EMAIL TERDAFTAR DARI REGISTER
+            val registeredRole = checkRegisteredUserLogin(email, password)
+
             when {
-                // Staff Produksi
+                // Staff Produksi (hardcode)
                 email.equals("staffproduksi@tiasa.com", ignoreCase = true) && password == "staffproduksi123" -> {
                     saveLoginSession(email, "Staff Produksi", "staff_produksi")
                     Toast.makeText(this, "✅ Login Sebagai Staff Produksi!", Toast.LENGTH_SHORT).show()
                     goToDashboard()
                 }
-                // Kepala Gudang
+                // Kepala Gudang (hardcode)
                 email.equals("kepalagudang@tiasa.com", ignoreCase = true) && password == "kepalagudang123" -> {
                     saveLoginSession(email, "Kepala Gudang", "kepala_gudang")
                     Toast.makeText(this, "✅ Login Sebagai Kepala Gudang!", Toast.LENGTH_SHORT).show()
                     goToDashboard()
                 }
-                // Quality Control
+                // Quality Control (hardcode)
                 email.equals("qualitycontrol@tiasa.com", ignoreCase = true) && password == "qualitycontrol123" -> {
                     saveLoginSession(email, "Quality Control", "quality_control")
                     Toast.makeText(this, "✅ Login Sebagai Quality Control!", Toast.LENGTH_SHORT).show()
+                    goToDashboard()
+                }
+                // CEK DARI DATA REGISTER
+                registeredRole != null -> {
+                    val user = getRegisteredUser(email)
+                    val roleName = when (registeredRole) {
+                        "staff_produksi" -> "Staff Produksi"
+                        "kepala_gudang" -> "Kepala Gudang"
+                        "quality_control" -> "Quality Control"
+                        else -> "User"
+                    }
+                    saveLoginSession(email, user?.name ?: roleName, registeredRole)
+                    Toast.makeText(this, "✅ Login Sebagai $roleName!", Toast.LENGTH_SHORT).show()
                     goToDashboard()
                 }
                 else -> {
@@ -176,9 +234,10 @@ class LoginActivity : AppCompatActivity() {
                         this,
                         "❌ Email atau Password salah!\n\n📋 Demo Accounts:\n" +
                                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                                "Staff Produksi: staffproduksi@tiasa.com / staffproduksi123\n" +
-                                "Kepala Gudang: kepalagudang@tiasa.com / kepalagudang123\n" +
-                                "Quality Control: qualitycontrol@tiasa.com / qualitycontrol123",
+                                "👔 Staff Produksi: staffproduksi@tiasa.com / staffproduksi123\n" +
+                                "👑 Kepala Gudang: kepalagudang@tiasa.com / kepalagudang123\n" +
+                                "🔬 Quality Control: qualitycontrol@tiasa.com / qualitycontrol123\n\n" +
+                                "📝 Atau gunakan akun yang sudah terdaftar!",
                         Toast.LENGTH_LONG
                     ).show()
                     setLoadingState(false)
