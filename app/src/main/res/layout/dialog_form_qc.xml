@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- HEADER -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:background="@drawable/bg_form_header"
+            android:gravity="center_vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FORM INSPEKSI QC"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- DATA KAIN -->
+
+            <TextView
+                android:id="@+id/tvNoQC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QC001"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/tvSPID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SP001"/>
+
+            <TextView
+                android:id="@+id/tvJenisKain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Katun"/>
+
+            <TextView
+                android:id="@+id/tvJumlahKain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="150 Meter"/>
+
+            <TextView
+                android:id="@+id/tvTanggalKirim"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2026-06-18"/>
+
+            <!-- UJI SAMPLE -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="UJI SAMPLE"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="24dp"/>
+
+            <CheckBox
+                android:id="@+id/cbUjiCuci"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uji Cuci"/>
+
+            <CheckBox
+                android:id="@+id/cbUjiDayaTahan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uji Daya Tahan"/>
+
+            <CheckBox
+                android:id="@+id/cbUjiSuhu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uji Suhu Panas"/>
+
+            <!-- CEK WARNA -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CEK WARNA"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"/>
+
+            <Spinner
+                android:id="@+id/spWarna"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- CEK JAHITAN -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CEK JAHITAN"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"/>
+
+            <Spinner
+                android:id="@+id/spJahitan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- CEK UKURAN -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CEK UKURAN AKHIR"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"/>
+
+            <Spinner
+                android:id="@+id/spUkuran"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <!-- UKURAN AKHIR -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TOTAL UKURAN AKHIR (METER)"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"/>
+
+            <EditText
+                android:id="@+id/etUkuranAkhir"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:inputType="number"
+                android:background="@drawable/bg_edittext"
+                android:padding="12dp"/>
+
+            <TextView
+                android:id="@+id/tvUkuranError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#E53935"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginTop="4dp"/>
+
+            <!-- ERROR UJI -->
+
+            <TextView
+                android:id="@+id/tvUjiError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#E53935"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"/>
+
+            <!-- FOTO -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DOKUMENTASI"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="24dp"/>
+
+            <Button
+                android:id="@+id/btnFotoSebelum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FOTO SEBELUM UJI"/>
+
+            <ImageView
+                android:id="@+id/imgSebelum"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"/>
+
+            <Button
+                android:id="@+id/btnFotoSesudah"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FOTO SESUDAH UJI"
+                android:layout_marginTop="12dp"/>
+
+            <ImageView
+                android:id="@+id/imgSesudah"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"/>
+
+            <Button
+                android:id="@+id/btnFotoTambahan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FOTO TAMBAHAN (OPSIONAL)"
+                android:layout_marginTop="12dp"/>
+
+            <ImageView
+                android:id="@+id/imgTambahan"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"/>
+
+            <!-- GRADE -->
+
+            <Button
+                android:id="@+id/btnLihatGrade"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="LIHAT GRADE"
+                android:layout_marginTop="24dp"/>
+
+            <TextView
+                android:id="@+id/tvGrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="GRADE : -"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="16dp"/>
+
+            <Button
+                android:id="@+id/btnSimpanQC"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="SIMPAN HASIL QC"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

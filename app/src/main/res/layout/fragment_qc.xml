@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#F5F7FA">
 
     <!-- HEADER -->
 
@@ -18,10 +20,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SURAT PERINTAH&#10;PRODUKSI"
+            android:text="INSPEKSI&#10;QUALITY CONTROL"
             android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textSize="22sp"/>
 
     </LinearLayout>
 
@@ -34,34 +36,45 @@
         android:padding="16dp">
 
         <Button
-            android:id="@+id/btnSemua"
+            android:id="@+id/btnSemuaQC"
             android:layout_width="0dp"
-            android:layout_height="45dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="SEMUA" />
+            android:text="SEMUA"/>
 
         <Space
             android:layout_width="12dp"
-            android:layout_height="1dp" />
+            android:layout_height="1dp"/>
 
         <Button
-            android:id="@+id/btnMingguIni"
+            android:id="@+id/btnMingguIniQC"
             android:layout_width="0dp"
-            android:layout_height="45dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="MINGGU INI" />
+            android:text="MINGGU INI"/>
 
     </LinearLayout>
+
+    <!-- JUMLAH DATA -->
+
+    <TextView
+        android:id="@+id/tvJumlahQC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Data QC : 0"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"/>
 
     <!-- RECYCLERVIEW -->
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSP"
+        android:id="@+id/rvQC"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:padding="8dp"
+        android:clipToPadding="false"/>
 
 </LinearLayout>

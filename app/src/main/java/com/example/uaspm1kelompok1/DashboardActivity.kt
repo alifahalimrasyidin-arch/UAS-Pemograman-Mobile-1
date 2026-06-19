@@ -22,6 +22,9 @@ import android.widget.ArrayAdapter
 import android.text.Editable
 import android.text.TextWatcher
 import android.graphics.Color
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -173,10 +176,16 @@ class DashboardActivity : AppCompatActivity() {
                 textSize = 18f
 
                 setOnClickListener {
-                    buatSuratPerintahProduksi()
+
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            SuratPerintahActivity::class.java
+                        )
+                    )
+
                 }
             }
-
             menuContainer.addView(btnSP)
 
             val row = LinearLayout(this).apply {
@@ -323,9 +332,22 @@ class DashboardActivity : AppCompatActivity() {
         val menus = when (userRole) {
 
             "quality_control" -> listOf(
-                MenuItem("Inspeksi Kain") { inspeksiKain() },
-                MenuItem("Show Hasil QC") { showHasilQC() }
+
+                MenuItem("Inspeksi Kain") {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            QCActivity::class.java
+                        )
+                    )
+                },
+
+                MenuItem("Show Hasil QC") {
+                    showHasilQC()
+                }
             )
+
 
             else -> listOf(
                 MenuItem("Lihat Surat Perintah") { lihatSuratPerintahBaru() },
@@ -379,9 +401,9 @@ class DashboardActivity : AppCompatActivity() {
             null
         )
 
-        val containerSP =
-            view.findViewById<LinearLayout>(
-                R.id.containerSP
+        val rvSP =
+            view.findViewById<RecyclerView>(
+                R.id.rvSP
             )
 
         val btnSemua =
@@ -394,136 +416,56 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.btnMingguIni
             )
 
-        fun loadData(
-            data: List<SuratPerintah>
-        ) {
+        rvSP.layoutManager =
+            LinearLayoutManager(this)
 
-            containerSP.removeAllViews()
+        val adapter =
+            SPAdapter(
+                suratPerintah.filter {
+                    it.status == "Menunggu Proses"
+                }
+            ) { sp ->
 
-            if (data.isEmpty()) {
-
-                val tv = TextView(this)
-
-                tv.text =
-                    "Belum ada surat perintah"
-
-                tv.textSize = 16f
-
-                containerSP.addView(tv)
-
-                return
-            }
-
-            for (sp in data) {
-
-                val card =
+                val detailView =
                     layoutInflater.inflate(
-                        R.layout.item_sp_card,
-                        containerSP,
-                        false
+                        R.layout.dialog_detail_sp,
+                        null
                     )
 
-                card.findViewById<TextView>(
-                    R.id.tvIdSP
-                ).text =
-                    sp.id
+                detailView.findViewById<TextView>(
+                    R.id.tvDetailId
+                ).text = sp.id
 
-                card.findViewById<TextView>(
-                    R.id.tvDeadline
-                ).text =
-                    sp.deadline
+                detailView.findViewById<TextView>(
+                    R.id.tvDetailJenis
+                ).text = sp.productName
 
-                card.findViewById<TextView>(
-                    R.id.tvJenisKain
-                ).text =
-                    sp.productName
+                detailView.findViewById<TextView>(
+                    R.id.tvDetailJumlah
+                ).text = "${sp.quantity} Meter"
 
-                card.findViewById<TextView>(
-                    R.id.tvStatus
-                ).text =
-                    sp.status
+                detailView.findViewById<TextView>(
+                    R.id.tvDetailDeadline
+                ).text = sp.deadline
 
-                val tvStatus =
-                    card.findViewById<TextView>(
-                        R.id.tvStatus
+                detailView.findViewById<TextView>(
+                    R.id.tvDetailStatus
+                ).text = sp.status
+
+                MaterialAlertDialogBuilder(this)
+                    .setView(detailView)
+                    .setPositiveButton(
+                        "TUTUP",
+                        null
                     )
-
-                when (sp.status) {
-
-                    "Menunggu Proses" ->
-                        tvStatus.setTextColor(
-                            Color.parseColor("#F9A825")
-                        )
-
-                    "Selesai Produksi" ->
-                        tvStatus.setTextColor(
-                            Color.parseColor("#2E7D32")
-                        )
-                }
-
-                card.setOnClickListener {
-
-                    val detailView =
-                        layoutInflater.inflate(
-                            R.layout.dialog_detail_sp,
-                            null
-                        )
-
-                    detailView.findViewById<TextView>(
-                        R.id.tvDetailId
-                    ).text =
-                        sp.id
-
-                    detailView.findViewById<TextView>(
-                        R.id.tvDetailJenis
-                    ).text =
-                        sp.productName
-
-                    detailView.findViewById<TextView>(
-                        R.id.tvDetailJumlah
-                    ).text =
-                        "${sp.quantity} Meter"
-
-                    detailView.findViewById<TextView>(
-                        R.id.tvDetailDeadline
-                    ).text =
-                        sp.deadline
-
-                    detailView.findViewById<TextView>(
-                        R.id.tvDetailStatus
-                    ).text =
-                        sp.status
-
-                    val detailDialog =
-                        MaterialAlertDialogBuilder(this)
-                            .setView(detailView)
-                            .setPositiveButton(
-                                "TUTUP",
-                                null
-                            )
-                            .create()
-
-                    detailDialog.show()
-
-                    detailDialog.window?.setLayout(
-                        (resources.displayMetrics.widthPixels * 0.90).toInt(),
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                }
-
-                containerSP.addView(card)
+                    .show()
             }
-        }
 
-        loadData(
-            suratPerintah.filter {
-                it.status == "Menunggu Proses"
-            }
-        )
+        rvSP.adapter = adapter
 
         btnSemua.setOnClickListener {
 
-            loadData(
+            adapter.updateData(
                 suratPerintah.filter {
                     it.status == "Menunggu Proses"
                 }
@@ -572,7 +514,7 @@ class DashboardActivity : AppCompatActivity() {
                             }
                 }
 
-            loadData(filtered)
+            adapter.updateData(filtered)
         }
 
         val dialog =
@@ -609,10 +551,13 @@ class DashboardActivity : AppCompatActivity() {
             null
         )
 
-        val containerSP =
-            view.findViewById<LinearLayout>(
-                R.id.containerSP
+        val rvSP =
+            view.findViewById<RecyclerView>(
+                R.id.rvSP
             )
+
+        rvSP.layoutManager =
+            LinearLayoutManager(this)
 
         val btnSemua =
             view.findViewById<Button>(
@@ -628,56 +573,11 @@ class DashboardActivity : AppCompatActivity() {
             data: List<SuratPerintah>
         ) {
 
-            containerSP.removeAllViews()
-
-            for (sp in data) {
-
-                val card =
-                    layoutInflater.inflate(
-                        R.layout.item_sp_card,
-                        containerSP,
-                        false
-                    )
-
-                card.findViewById<TextView>(
-                    R.id.tvIdSP
-                ).text = sp.id
-
-                card.findViewById<TextView>(
-                    R.id.tvJenisKain
-                ).text = sp.productName
-
-                card.findViewById<TextView>(
-                    R.id.tvDeadline
-                ).text = sp.deadline
-
-                card.findViewById<TextView>(
-                    R.id.tvStatus
-                ).text = sp.status
-                val tvStatus =
-                    card.findViewById<TextView>(
-                        R.id.tvStatus
-                    )
-
-                when (sp.status) {
-
-                    "Menunggu Proses" ->
-                        tvStatus.setTextColor(
-                            Color.parseColor("#F9A825")
-                        )
-
-                    "Selesai Produksi" ->
-                        tvStatus.setTextColor(
-                            Color.parseColor("#2E7D32")
-                        )
-                }
-                card.setOnClickListener {
+            rvSP.adapter =
+                SPAdapter(data) { sp ->
 
                     showFormProduksi(sp)
                 }
-
-                containerSP.addView(card)
-            }
         }
 
         loadData(spMenunggu)
@@ -728,6 +628,7 @@ class DashboardActivity : AppCompatActivity() {
                                 false
                             }
                 }
+
             loadData(filtered)
         }
 
@@ -1444,52 +1345,94 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun lihatLaporanQC() {
 
-        val dataQC = dikirimKeQC.filter {
-            it.statusKain != "Menunggu QC"
-        }
+        val dataQC =
+            dikirimKeQC.filter {
+                it.statusKain == "Selesai QC"
+            }
 
         if (dataQC.isEmpty()) {
+
             Toast.makeText(
                 this,
                 "Belum ada data hasil QC",
                 Toast.LENGTH_SHORT
             ).show()
+
             return
         }
 
-        var jumlahLulus = 0
-        var jumlahGagal = 0
+        var totalA = 0
+        var totalB = 0
+        var totalC = 0
 
-        var message = "LAPORAN QC\n━━━━━━━━━━━━━━━━━━\n\n"
+        var message =
+            "LAPORAN QUALITY CONTROL\n" +
+                    "━━━━━━━━━━━━━━━━━━━━━━\n\n"
 
         for (qc in dataQC) {
 
-            if (qc.statusKain == "Lulus") {
-                jumlahLulus++
-            } else if (qc.statusKain == "Gagal") {
-                jumlahGagal++
+            when (qc.grade) {
+
+                "A" -> totalA++
+
+                "B" -> totalB++
+
+                "C" -> totalC++
             }
 
-            message += "No QC : ${qc.noQC}\n"
-            message += "SP ID : ${qc.spId}\n"
-            message += "Jenis Kain : ${qc.productName}\n"
-            message += "Panjang : ${qc.quantity} Meter\n"
-            message += "Grade : ${qc.grade}\n"
-            message += "Status Kain : ${qc.statusKain}\n"
-            message += "Detail : ${qc.detailQC}\n"
-            message += "━━━━━━━━━━━━━━━━━━\n\n"
+            message +=
+                "NO QC : ${qc.noQC}\n" +
+                        "SP ID : ${qc.spId}\n" +
+                        "JENIS KAIN : ${qc.productName}\n" +
+                        "PANJANG : ${qc.quantity} Meter\n" +
+                        "TANGGAL KIRIM : ${qc.tanggalKirim}\n" +
+                        "TANGGAL QC : ${qc.tanggalQC}\n\n" +
+
+                        "UJI SAMPLE\n" +
+                        "- Uji Cuci : ${if (qc.ujiCuci) "✓" else "✗"}\n" +
+                        "- Uji Daya Tahan : ${if (qc.ujiDayaTahan) "✓" else "✗"}\n" +
+                        "- Uji Suhu Panas : ${if (qc.ujiSuhuPanas) "✓" else "✗"}\n\n" +
+
+                        "HASIL INSPEKSI\n" +
+                        "- Warna : ${qc.hasilWarna}\n" +
+                        "- Jahitan : ${qc.hasilJahitan}\n" +
+                        "- Ukuran : ${qc.hasilUkuran}\n" +
+                        "- Ukuran Akhir : ${qc.ukuranAkhir} Meter\n\n" +
+
+                        "DOKUMENTASI QC\n" +
+                        "- Foto Sebelum : ${if (qc.fotoSebelum.isNotEmpty()) "Ada" else "Tidak Ada"}\n" +
+                        "- Foto Sesudah : ${if (qc.fotoSesudah.isNotEmpty()) "Ada" else "Tidak Ada"}\n" +
+                        "- Foto Tambahan : ${if (qc.fotoTambahan.isNotEmpty()) "Ada" else "Tidak Ada"}\n\n" +
+
+                        "GRADE : ${qc.grade}\n" +
+                        "STATUS : ${qc.statusKain}\n"
+
+            if (qc.grade == "C") {
+
+                message +=
+                    "PENURUNAN HARGA : ${qc.persentasePenurunan}%\n"
+            }
+
+            message +=
+                "\n━━━━━━━━━━━━━━━━━━━━━━\n\n"
         }
 
-        message += "\nTOTAL LULUS : $jumlahLulus\n"
-        message += "TOTAL GAGAL : $jumlahGagal"
+        message +=
+            "RINGKASAN HASIL QC\n\n" +
+                    "Grade A : $totalA\n" +
+                    "Grade B : $totalB\n" +
+                    "Grade C : $totalC\n\n" +
+                    "Total Kain QC : ${dataQC.size}"
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Laporan QC")
             .setMessage(message)
-            .setPositiveButton("TUTUP", null)
+            .setPositiveButton(
+                "TUTUP",
+                null
+            )
             .show()
     }
-
     //MENU QUALITY CONTROL
 
     private fun showInspeksiDialogQC(qc: KirimQC) {
@@ -1649,8 +1592,32 @@ class DashboardActivity : AppCompatActivity() {
         val tanggalKirim: String,
         val noQC: String,
 
+        var ujiCuci: Boolean = false,
+        var ujiDayaTahan: Boolean = false,
+        var ujiSuhuPanas: Boolean = false,
+
+        var cekWarna: Int = 0,
+        var cekJahitan: Int = 0,
+        var cekUkuran: Int = 0,
+
+        // HASIL DESKRIPTIF QC
+        var hasilWarna: String = "-",
+        var hasilJahitan: String = "-",
+        var hasilUkuran: String = "-",
+
+        var ukuranAkhir: Int = 0,
+
+        var fotoSebelum: String = "",
+        var fotoSesudah: String = "",
+        var fotoTambahan: String = "",
+
         var grade: String = "-",
         var detailQC: String = "-",
+
+        var persentasePenurunan: Int = 0,
+
+        var tanggalQC: String = "-",
+
         var statusKain: String = "Menunggu QC"
     )
 }

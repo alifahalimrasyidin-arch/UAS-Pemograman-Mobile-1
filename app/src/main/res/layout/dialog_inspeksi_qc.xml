@@ -1,36 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
 
-    <LinearLayout
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvInfoQC"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="Info QC" />
 
-        <TextView
-            android:id="@+id/tvInfoQC"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="12dp"/>
+    <Spinner
+        android:id="@+id/spGrade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <Spinner
-            android:id="@+id/spGrade"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/etDetailQC"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:hint="Detail QC" />
 
-        <EditText
-            android:id="@+id/etDetailQC"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Detail Hasil QC"
-            android:minLines="3"
-            android:gravity="top"
-            android:layout_marginTop="12dp"/>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

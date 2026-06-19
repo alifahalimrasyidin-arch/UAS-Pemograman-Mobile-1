@@ -42,6 +42,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -49,6 +50,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
