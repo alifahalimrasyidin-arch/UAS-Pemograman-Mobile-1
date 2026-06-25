@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F5F7FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- HEADER -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/bg_form_header"
+            android:gravity="center_vertical"
+            android:padding="22dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DETAIL&#10;HASIL PRODUKSI"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="24sp"/>
+
+        </LinearLayout>
+
+        <!-- CARD -->
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:layout_marginBottom="0dp"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="6dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvSpId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SP001"
+                    android:textColor="#1565C0"
+                    android:textSize="24sp"
+                    android:textStyle="bold"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="18dp"
+                    android:background="#DDDDDD"/>
+
+                <TextView
+                    android:text="JENIS KAIN"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvJenis"
+                    android:text="Polyester"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="JUMLAH PRODUKSI"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvJumlah"
+                    android:text="250 Meter"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="TANGGAL PRODUKSI"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvTanggal"
+                    android:text="2026-06-25"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="PETUGAS PRODUKSI"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvPetugas"
+                    android:text="Alif"
+                    android:textSize="17sp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="STATUS QC"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvStatusQC"
+                    android:text="Belum Kirim QC"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="CATATAN PRODUKSI"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvCatatan"
+                    android:text="-"
+                    android:textSize="16sp"
+                    android:background="#F7F7F7"
+                    android:padding="14dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</ScrollView>

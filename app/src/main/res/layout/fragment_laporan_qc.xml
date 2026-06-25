@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <!-- HEADER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@drawable/bg_form_header"
+        android:gravity="center_vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LAPORAN QUALITY CONTROL"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="22sp"/>
+
+    </LinearLayout>
+
+    <!-- PENCARIAN -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/etCariQC"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:hint="Cari No QC / SP ID"
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <Button
+            android:id="@+id/btnCariQC"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="CARI"/>
+
+    </LinearLayout>
+
+    <!-- FILTER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <Button
+            android:id="@+id/btnSemuaLaporan"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="SEMUA"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <Button
+            android:id="@+id/btnMingguIniLaporan"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="MINGGU INI"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <Button
+            android:id="@+id/btnBulanIniLaporan"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="BULAN INI"/>
+
+    </LinearLayout>
+
+    <!-- JUMLAH DATA -->
+
+    <TextView
+        android:id="@+id/tvJumlahLaporanQC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Data QC : 0"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- LIST DATA -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLaporanQC"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"/>
+
+</LinearLayout>

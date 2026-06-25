@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <!-- HEADER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@drawable/bg_form_header"
+        android:gravity="center_vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HASIL PRODUKSI"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="22sp"/>
+
+    </LinearLayout>
+
+    <!-- FILTER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter Status QC"
+            android:textStyle="bold"
+            android:textSize="14sp"/>
+
+        <Spinner
+            android:id="@+id/spFilterStatusQC"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_edittext"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvJumlahData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Produksi : 0"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHasilProduksi"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"/>
+
+</LinearLayout>

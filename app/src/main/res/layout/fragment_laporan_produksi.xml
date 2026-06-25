@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA">
+
+    <!-- HEADER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="95dp"
+        android:background="@drawable/bg_form_header"
+        android:gravity="center_vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LAPORAN&#10;PRODUKSI"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="24sp"/>
+
+    </LinearLayout>
+
+    <!-- FILTER -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnSemua"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="SEMUA"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <Button
+            android:id="@+id/btnMingguIni"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="MINGGU"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <Button
+            android:id="@+id/btnBulanIni"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="BULAN"/>
+
+    </LinearLayout>
+
+    <!-- SPINNER -->
+
+    <Spinner
+        android:id="@+id/spStatus"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp"/>
+
+    <!-- TOTAL -->
+
+    <TextView
+        android:id="@+id/tvJumlahData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total SP : 0"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- LIST -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLaporanProduksi"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"/>
+
+</LinearLayout>

@@ -96,6 +96,17 @@
                 android:layout_height="wrap_content"
                 android:text="Uji Suhu Panas"/>
 
+            <!-- ERROR UJI -->
+
+            <TextView
+                android:id="@+id/tvUjiError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#E53935"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"/>
+
             <!-- CEK WARNA -->
 
             <TextView
@@ -165,16 +176,7 @@
                 android:visibility="gone"
                 android:layout_marginTop="4dp"/>
 
-            <!-- ERROR UJI -->
 
-            <TextView
-                android:id="@+id/tvUjiError"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#E53935"
-                android:textSize="12sp"
-                android:visibility="gone"
-                android:layout_marginTop="8dp"/>
 
             <!-- FOTO -->
 
@@ -224,24 +226,7 @@
                 android:layout_height="120dp"
                 android:layout_marginTop="8dp"/>
 
-            <!-- GRADE -->
 
-            <Button
-                android:id="@+id/btnLihatGrade"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="LIHAT GRADE"
-                android:layout_marginTop="24dp"/>
-
-            <TextView
-                android:id="@+id/tvGrade"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="GRADE : -"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:layout_marginTop="16dp"/>
 
             <Button
                 android:id="@+id/btnSimpanQC"

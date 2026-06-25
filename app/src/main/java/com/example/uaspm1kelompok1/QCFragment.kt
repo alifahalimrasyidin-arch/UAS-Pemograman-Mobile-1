@@ -23,6 +23,8 @@ import android.graphics.Bitmap
 import android.provider.MediaStore
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
+import android.text.Editable
+import android.text.TextWatcher
 class QCFragment : Fragment() {
 
     private lateinit var rvQC: RecyclerView
@@ -232,10 +234,6 @@ class QCFragment : Fragment() {
                 R.id.etUkuranAkhir
             )
 
-        val tvGrade =
-            view.findViewById<TextView>(
-                R.id.tvGrade
-            )
 
         val tvUjiError =
             view.findViewById<TextView>(
@@ -246,11 +244,67 @@ class QCFragment : Fragment() {
             view.findViewById<TextView>(
                 R.id.tvUkuranError
             )
+        etUkuranAkhir.addTextChangedListener(
+            object : TextWatcher {
 
-        val btnLihatGrade =
-            view.findViewById<Button>(
-                R.id.btnLihatGrade
-            )
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+
+                    val ukuran =
+                        s.toString().toIntOrNull()
+
+                    if (ukuran == null) {
+
+                        tvUkuranError.visibility =
+                            View.GONE
+
+                        etUkuranAkhir.setBackgroundResource(
+                            R.drawable.bg_edittext
+                        )
+
+                        return
+                    }
+
+                    if (ukuran > qc.quantity) {
+
+                        tvUkuranError.visibility =
+                            View.VISIBLE
+
+                        tvUkuranError.text =
+                            "Ukuran akhir tidak boleh melebihi hasil produksi (${qc.quantity} Meter)"
+
+                        etUkuranAkhir.setBackgroundResource(
+                            R.drawable.bg_error
+                        )
+                    } else {
+
+                        tvUkuranError.visibility =
+                            View.GONE
+
+                        etUkuranAkhir.setBackgroundResource(
+                            R.drawable.bg_edittext
+                        )
+                    }
+                }
+
+                override fun afterTextChanged(
+                    s: Editable?
+                ) {
+                }
+            }
+        )
 
         val btnSimpanQC =
             view.findViewById<Button>(
@@ -407,48 +461,42 @@ class QCFragment : Fragment() {
 
         dialog.show()
 
-        btnLihatGrade.setOnClickListener {
+
+
+        btnSimpanQC.setOnClickListener {
+            val ukuranAkhir =
+                etUkuranAkhir.text
+                    .toString()
+                    .toIntOrNull()
 
             if (!cbUjiCuci.isChecked) {
 
-                tvUjiError.visibility =
-                    View.VISIBLE
-
-                tvUjiError.text =
-                    "Anda belum melakukan Uji Cuci"
+                showErrorDialog(
+                    "Uji Cuci belum dilakukan"
+                )
 
                 return@setOnClickListener
             }
 
             if (!cbUjiDayaTahan.isChecked) {
 
-                tvUjiError.visibility =
-                    View.VISIBLE
-
-                tvUjiError.text =
-                    "Anda belum melakukan Uji Daya Tahan"
+                showErrorDialog(
+                    "Uji Daya Tahan belum dilakukan"
+                )
 
                 return@setOnClickListener
             }
 
             if (!cbUjiSuhu.isChecked) {
 
-                tvUjiError.visibility =
-                    View.VISIBLE
-
-                tvUjiError.text =
-                    "Anda belum melakukan Uji Suhu Panas"
+                showErrorDialog(
+                    "Uji Suhu Panas belum dilakukan"
+                )
 
                 return@setOnClickListener
             }
 
-            tvUjiError.visibility =
-                View.GONE
 
-            val ukuranAkhir =
-                etUkuranAkhir.text
-                    .toString()
-                    .toIntOrNull()
 
             if (ukuranAkhir == null) {
 
@@ -458,174 +506,225 @@ class QCFragment : Fragment() {
                 tvUkuranError.text =
                     "Ukuran akhir wajib diisi"
 
+                showErrorDialog(
+                    "Ukuran akhir belum diisi"
+                )
+
+                return@setOnClickListener
+            }
+
+            if (ukuranAkhir > qc.quantity) {
+
+                tvUkuranError.visibility =
+                    View.VISIBLE
+
+                tvUkuranError.text =
+                    "Ukuran akhir tidak boleh melebihi hasil produksi"
+
+                etUkuranAkhir.setBackgroundResource(
+                    R.drawable.bg_error
+                )
+
                 return@setOnClickListener
             }
 
             tvUkuranError.visibility =
                 View.GONE
 
-            MaterialAlertDialogBuilder(
-                requireContext()
-            )
-                .setTitle("Konfirmasi Data QC")
-                .setMessage(
-                    "Apakah semua data pengecekan telah sesuai?"
-                )
-                .setNegativeButton(
-                    "TIDAK",
-                    null
-                )
-                .setPositiveButton(
-                    "YA"
-                ) { _, _ ->
-
-                    val poinWarna =
-                        3 - spWarna.selectedItemPosition
-
-                    val poinJahitan =
-                        3 - spJahitan.selectedItemPosition
-
-                    val poinUkuran =
-                        3 - spUkuran.selectedItemPosition
-
-                    val totalPoin =
-                        poinWarna +
-                                poinJahitan +
-                                poinUkuran
-
-                    val grade =
-                        when {
-
-                            totalPoin >= 8 -> "A"
-
-                            totalPoin >= 5 -> "B"
-
-                            else -> "C"
-                        }
-
-                    tvGrade.text =
-                        "GRADE : $grade"
-
-                    Toast.makeText(
-                        requireContext(),
-                        "Grade berhasil dihitung",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .show()
-        }
-
-        btnSimpanQC.setOnClickListener {
-
-            val gradeText =
-                tvGrade.text.toString()
-
-            if (gradeText == "GRADE : -") {
-
-                return@setOnClickListener
-            }
             if (fotoSebelumBitmap == null) {
 
-                Toast.makeText(
-                    requireContext(),
-                    "Foto sebelum uji wajib diambil",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showErrorDialog(
+                    "Foto sebelum uji belum diambil"
+                )
 
                 return@setOnClickListener
             }
 
             if (fotoSesudahBitmap == null) {
 
-                Toast.makeText(
-                    requireContext(),
-                    "Foto sesudah uji wajib diambil",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showErrorDialog(
+                    "Foto sesudah uji belum diambil"
+                )
 
                 return@setOnClickListener
+
             }
-            qc.ujiCuci =
-                cbUjiCuci.isChecked
 
-            qc.ujiDayaTahan =
-                cbUjiDayaTahan.isChecked
+            // lanjutkan kode grade dan simpan yang lama
 
-            qc.ujiSuhuPanas =
-                cbUjiSuhu.isChecked
 
-            qc.cekWarna =
-                spWarna.selectedItemPosition + 1
+            val poinWarna =
+                3 - spWarna.selectedItemPosition
 
-            qc.cekJahitan =
-                spJahitan.selectedItemPosition + 1
+            val poinJahitan =
+                3 - spJahitan.selectedItemPosition
 
-            qc.cekUkuran =
-                spUkuran.selectedItemPosition + 1
+            val poinUkuran =
+                3 - spUkuran.selectedItemPosition
 
-            qc.hasilWarna =
-                spWarna.selectedItem.toString()
+            val totalPoin =
+                poinWarna +
+                        poinJahitan +
+                        poinUkuran
 
-            qc.hasilJahitan =
-                spJahitan.selectedItem.toString()
+            val grade =
+                when {
 
-            qc.hasilUkuran =
-                spUkuran.selectedItem.toString()
-            qc.ukuranAkhir =
-                etUkuranAkhir.text
-                    .toString()
-                    .toInt()
+                    totalPoin >= 8 -> "A"
 
-            qc.grade =
-                gradeText.replace(
-                    "GRADE : ",
-                    ""
+                    totalPoin >= 5 -> "B"
+
+                    else -> "C"
+                }
+
+            MaterialAlertDialogBuilder(
+                requireContext()
+            )
+                .setTitle("Hasil Inspeksi QC")
+                .setMessage(
+                    "Jenis Kain : ${qc.productName}\n\n" +
+                            "Grade : $grade\n" +
+                            "Status : Selesai QC\n\n" +
+                            "Apakah data ingin disimpan?"
                 )
-            qc.tanggalQC =
-                SimpleDateFormat(
-                    "yyyy-MM-dd",
-                    Locale.getDefault()
-                ).format(Date())
+                .setNegativeButton(
+                    "BATAL",
+                    null
+                )
+                .setPositiveButton(
+                    "SIMPAN"
+                ) { _, _ ->
 
-            qc.detailQC =
-                "Warna : ${qc.hasilWarna}\n" +
-                        "Jahitan : ${qc.hasilJahitan}\n" +
-                        "Ukuran : ${qc.hasilUkuran}\n" +
-                        "Ukuran Akhir : ${qc.ukuranAkhir} Meter"
-            qc.fotoSebelum =
-                if (fotoSebelumBitmap != null)
-                    "Ada"
-                else
-                    ""
+                    qc.ujiCuci =
+                        cbUjiCuci.isChecked
 
-            qc.fotoSesudah =
-                if (fotoSesudahBitmap != null)
-                    "Ada"
-                else
-                    ""
+                    qc.ujiDayaTahan =
+                        cbUjiDayaTahan.isChecked
 
-            qc.fotoTambahan =
-                if (fotoTambahanBitmap != null)
-                    "Ada"
-                else
-                    ""
-            qc.statusKain =
-                "Selesai QC"
+                    qc.ujiSuhuPanas =
+                        cbUjiSuhu.isChecked
 
-            adapter.updateData(
-                DashboardActivity.dikirimKeQC.filter {
-                    it.statusKain == "Menunggu QC"
+                    qc.cekWarna =
+                        spWarna.selectedItemPosition + 1
+
+                    qc.cekJahitan =
+                        spJahitan.selectedItemPosition + 1
+
+                    qc.cekUkuran =
+                        spUkuran.selectedItemPosition + 1
+
+                    qc.hasilWarna =
+                        spWarna.selectedItem.toString()
+
+                    qc.hasilJahitan =
+                        spJahitan.selectedItem.toString()
+
+                    qc.hasilUkuran =
+                        spUkuran.selectedItem.toString()
+
+                    qc.ukuranAkhir =
+                        ukuranAkhir
+
+                    qc.grade =
+                        grade
+
+                    qc.petugasQC =
+                        requireActivity()
+                            .getSharedPreferences(
+                                "TIASA_PREFS",
+                                android.content.Context.MODE_PRIVATE
+                            )
+                            .getString(
+                                "user_name",
+                                "Quality Control"
+                            ) ?: "Quality Control"
+
+                    qc.tanggalQC =
+                        SimpleDateFormat(
+                            "yyyy-MM-dd",
+                            Locale.getDefault()
+                        ).format(Date())
+
+                    qc.detailQC =
+                        "Warna : ${qc.hasilWarna}\n" +
+                                "Jahitan : ${qc.hasilJahitan}\n" +
+                                "Ukuran : ${qc.hasilUkuran}\n" +
+                                "Ukuran Akhir : ${qc.ukuranAkhir} Meter"
+
+                    qc.fotoSebelum = "Ada"
+                    qc.fotoSesudah = "Ada"
+
+                    qc.fotoTambahan =
+                        if (fotoTambahanBitmap != null)
+                            "Ada"
+                        else
+                            ""
+                    qc.fotoSebelumBitmap =
+                        fotoSebelumBitmap
+
+                    qc.fotoSesudahBitmap =
+                        fotoSesudahBitmap
+
+                    qc.fotoTambahanBitmap =
+                        fotoTambahanBitmap
+
+                    qc.statusKain =
+                        "Selesai QC"
+                    val prefs =
+                        requireActivity().getSharedPreferences(
+                            "TIASA_PREFS",
+                            android.content.Context.MODE_PRIVATE
+                        )
+
+                    qc.petugasQC =
+                        prefs.getString(
+                            "user_name",
+                            "-"
+                        ) ?: "-"
+
+                    fotoSebelumBitmap = null
+                    fotoSesudahBitmap = null
+                    fotoTambahanBitmap = null
+
+                    adapter.updateData(
+                        DashboardActivity.dikirimKeQC.filter {
+                            it.statusKain == "Menunggu QC"
+                        }
+                    )
+
+                    updateJumlahData(
+                        DashboardActivity.dikirimKeQC.count {
+                            it.statusKain == "Menunggu QC"
+                        }
+                    )
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Inspeksi QC berhasil disimpan",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    dialog.dismiss()
                 }
-            )
-
-            updateJumlahData(
-                DashboardActivity.dikirimKeQC.count {
-                    it.statusKain == "Menunggu QC"
-                }
-            )
-
-            dialog.dismiss()
+                .show()
         }
+    }
+    private fun showErrorDialog(
+        pesan: String
+    ) {
+
+        MaterialAlertDialogBuilder(
+            requireContext()
+        )
+            .setTitle("Data Belum Lengkap")
+            .setMessage(
+                "$pesan\n\nSilakan lengkapi data terlebih dahulu."
+            )
+            .setPositiveButton(
+                "KEMBALI",
+                null
+            )
+            .show()
     }
     private val cameraLauncher =
         registerForActivityResult(

@@ -60,6 +60,25 @@
                 android:resource="@xml/file_paths" />
 
         </provider>
+        <activity
+            android:name=".LaporanQCActivity"/>
+        <activity
+            android:name=".DetailLaporanQCActivity"/>
+        <activity
+            android:name=".MonitoringQC"/>
+        <activity
+            android:name=".ProduksiActivity"/>
+        <activity
+            android:name=".InputProduksiActivity"/>
+        <activity
+            android:name=".HasilProduksiActivity"/>
+        <activity
+            android:name=".LaporanProduksiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailProduksiActivity"
+            android:exported="false"/>
+
     </application>
 
 

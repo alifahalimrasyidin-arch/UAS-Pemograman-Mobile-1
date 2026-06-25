@@ -21,10 +21,9 @@ import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.text.Editable
 import android.text.TextWatcher
-import android.graphics.Color
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
-
+import android.graphics.Bitmap
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -48,6 +47,8 @@ class DashboardActivity : AppCompatActivity() {
         val suratPerintah = mutableListOf<SuratPerintah>()
 
         val hasilProduksi = mutableListOf<HasilProduksi>()
+
+
 
         val dikirimKeQC = mutableListOf<KirimQC>()
     }
@@ -213,7 +214,13 @@ class DashboardActivity : AppCompatActivity() {
                 textSize = 16f
 
                 setOnClickListener {
-                    lihatLaporanProduksi()
+                    startActivity(
+
+                        Intent(
+                            this@DashboardActivity,
+                            LaporanProduksiActivity::class.java
+                        )
+                    )
                 }
             }
 
@@ -238,10 +245,15 @@ class DashboardActivity : AppCompatActivity() {
                 textSize = 16f
 
                 setOnClickListener {
-                    lihatLaporanQC()
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            MonitoringQC::class.java
+                        )
+                    )
+
                 }
             }
-
             row.addView(btnProduksi)
             row.addView(btnQC)
 
@@ -296,7 +308,12 @@ class DashboardActivity : AppCompatActivity() {
                 )
 
                 setOnClickListener {
-                    mulaiProduksiBaru()
+                       startActivity(
+                            Intent(
+                                this@DashboardActivity,
+                                ProduksiActivity::class.java
+                            )
+                            )
                 }
             }
 
@@ -318,7 +335,12 @@ class DashboardActivity : AppCompatActivity() {
                 )
 
                 setOnClickListener {
-                    hasilProduksiBaru()
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            HasilProduksiActivity::class.java
+                        )
+                    )
                 }
             }
 
@@ -343,16 +365,39 @@ class DashboardActivity : AppCompatActivity() {
                     )
                 },
 
-                MenuItem("Show Hasil QC") {
-                    showHasilQC()
+                MenuItem("Laporan QC") {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            LaporanQCActivity::class.java
+                        )
+                    )
                 }
             )
 
 
             else -> listOf(
                 MenuItem("Lihat Surat Perintah") { lihatSuratPerintahBaru() },
-                MenuItem("Mulai Produksi") { mulaiProduksiBaru() },
-                MenuItem("Hasil Produksi") { hasilProduksiBaru() }
+                MenuItem("Mulai Produksi") {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            ProduksiActivity::class.java
+                        )
+                    )
+                },
+
+                MenuItem("Hasil Produksi") {
+
+                    startActivity(
+                        Intent(
+                            this,
+                            HasilProduksiActivity::class.java
+                        )
+                    )
+                }
             )
         }
 
@@ -529,6 +574,7 @@ class DashboardActivity : AppCompatActivity() {
             (resources.displayMetrics.heightPixels * 0.95).toInt()
         )
     }
+    /*
     private fun mulaiProduksiBaru() {
 
         val spMenunggu = suratPerintah.filter {
@@ -644,12 +690,14 @@ class DashboardActivity : AppCompatActivity() {
             (resources.displayMetrics.heightPixels * 0.95).toInt()
         )
     }
+
+
     private fun showFormProduksi(
         selectedSP: SuratPerintah
     ) {
 
         val view = layoutInflater.inflate(
-            R.layout.dialog_mulai_produksi,
+            R.layout.activity_input_produksi,
             null
         )
 
@@ -909,6 +957,12 @@ class DashboardActivity : AppCompatActivity() {
 
             // SIMPAN HASIL PRODUKSI
 
+            val petugasProduksi =
+                sharedPreferences.getString(
+                    KEY_USER_NAME,
+                    "User"
+                ) ?: "User"
+
             hasilProduksi.add(
                 HasilProduksi(
                     spId = selectedSP.id,
@@ -916,7 +970,11 @@ class DashboardActivity : AppCompatActivity() {
                     quantity = panjangProduksi,
                     unit = "Meter",
                     tanggalSelesai = getCurrentDate(),
+
+                    petugasProduksi = petugasProduksi,
+
                     statusQC = "Menunggu QC",
+
                     notes = etCatatan.text.toString()
                 )
             )
@@ -930,6 +988,8 @@ class DashboardActivity : AppCompatActivity() {
             dialog.dismiss()
         }
     }
+
+
     private fun hasilProduksiBaru() {
 
         if (hasilProduksi.isEmpty()) {
@@ -1001,6 +1061,8 @@ class DashboardActivity : AppCompatActivity() {
             .setNegativeButton("TUTUP", null)
             .show()
     }
+
+     */
     // MENU KEPALA GUDANG
 
     private fun buatSuratPerintahProduksi() {
@@ -1580,6 +1642,7 @@ class DashboardActivity : AppCompatActivity() {
         val quantity: Int,
         val unit: String,
         val tanggalSelesai: String,
+        val petugasProduksi: String,
         var statusQC: String,
         val notes: String = ""
     )
@@ -1611,6 +1674,10 @@ class DashboardActivity : AppCompatActivity() {
         var fotoSesudah: String = "",
         var fotoTambahan: String = "",
 
+        var fotoSebelumBitmap: Bitmap? = null,
+        var fotoSesudahBitmap: Bitmap? = null,
+        var fotoTambahanBitmap: Bitmap? = null,
+
         var grade: String = "-",
         var detailQC: String = "-",
 
@@ -1618,6 +1685,8 @@ class DashboardActivity : AppCompatActivity() {
 
         var tanggalQC: String = "-",
 
-        var statusKain: String = "Menunggu QC"
+        var statusKain: String = "Menunggu QC",
+
+        var petugasQC: String = ""
     )
 }
