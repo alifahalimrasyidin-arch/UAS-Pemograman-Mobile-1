@@ -9,6 +9,8 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.uaspm1kelompok1.database.DatabaseContract
+import com.example.uaspm1kelompok1.database.DatabaseHelper
 
 class HasilProduksiFragment : Fragment() {
 
@@ -24,6 +26,8 @@ class HasilProduksiFragment : Fragment() {
 
     private lateinit var adapter:
             HasilProduksiAdapter
+
+    private lateinit var dbHelper:DatabaseHelper
 
     private val dataTampil =
         mutableListOf<
@@ -64,8 +68,9 @@ class HasilProduksiFragment : Fragment() {
 
         rvHasilProduksi.layoutManager =
             LinearLayoutManager(
-                requireContext()
-            )
+                requireContext())
+                        dbHelper=DatabaseHelper(requireContext())
+
 
         adapter =
             HasilProduksiAdapter(
@@ -102,7 +107,27 @@ class HasilProduksiFragment : Fragment() {
             }
         }
     }
-
+    private fun loadDataDatabase(){
+        dataTampil.clear()
+        val cursor=dbHelper.getAllHasilProduksi()
+        if(cursor.moveToFirst()){
+            do{
+                dataTampil.add(
+                    DashboardActivity.HasilProduksi(
+                        spId=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.SP_ID)),
+                        productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.JENIS_KAIN)),
+                        quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.JUMLAH)),
+                        unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.SATUAN)),
+                        tanggalSelesai=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.TANGGAL_PRODUKSI)),
+                        petugasProduksi=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.PETUGAS_PRODUKSI)),
+                        statusQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.STATUS_QC)),
+                        notes=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.CATATAN))
+                    )
+                )
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+    }
     private fun setupSpinner() {
 
         val filterList = arrayOf(
@@ -156,50 +181,27 @@ class HasilProduksiFragment : Fragment() {
             }
     }
 
-    private fun loadSemuaData() {
-
-        dataTampil.clear()
-
-        dataTampil.addAll(
-            DashboardActivity.hasilProduksi
-        )
-
+    private fun loadSemuaData(){
+        loadDataDatabase()
         updateTampilan()
     }
 
-    private fun filterBelumQC() {
-
+    private fun filterBelumQC(){
+        loadDataDatabase()
+        val hasil=dataTampil.filter{
+            it.statusQC=="Belum Kirim QC"
+        }
         dataTampil.clear()
-
-        dataTampil.addAll(
-
-            DashboardActivity
-                .hasilProduksi
-                .filter {
-
-                    it.statusQC ==
-                            "Belum Kirim QC"
-                }
-        )
-
+        dataTampil.addAll(hasil)
         updateTampilan()
     }
-
-    private fun filterSudahQC() {
-
+    private fun filterSudahQC(){
+        loadDataDatabase()
+        val hasil=dataTampil.filter{
+            it.statusQC=="Sudah Kirim QC"
+        }
         dataTampil.clear()
-
-        dataTampil.addAll(
-
-            DashboardActivity
-                .hasilProduksi
-                .filter {
-
-                    it.statusQC ==
-                            "Sudah Kirim QC"
-                }
-        )
-
+        dataTampil.addAll(hasil)
         updateTampilan()
     }
 
@@ -225,39 +227,48 @@ class HasilProduksiFragment : Fragment() {
             ) { _, _ ->
 
                 val nomorQC =
-                    "QC" + String.format(
-                        "%03d",
-                        DashboardActivity.dikirimKeQC.size + 1
-                    )
-
-                DashboardActivity.dikirimKeQC.add(
-
-                    DashboardActivity.KirimQC(
-
-                        spId =
-                            data.spId,
-
-                        productName =
-                            data.productName,
-
-                        quantity =
-                            data.quantity,
-
-                        unit =
-                            data.unit,
-
-                        tanggalKirim =
-                            data.tanggalSelesai,
-
-                        noQC =
-                            nomorQC
-                    )
+                    "QC" + System.currentTimeMillis().toString().takeLast(6)
+                val berhasil=dbHelper.insertQualityControl(
+                    data.spId,
+                    data.productName,
+                    data.quantity,
+                    data.unit,
+                    nomorQC,
+                    data.tanggalSelesai,
+                    "",
+                    "",
+                    "",
+                    "Menunggu QC",
+                    false,
+                    false,
+                    false,
+                    "",
+                    "",
+                    "",
+                    0.0,
+                    null,
+                    null,
+                    null,
+                    ""
                 )
+
+                if(!berhasil){
+                    Toast.makeText(
+                        requireContext(),
+                        "Gagal mengirim ke QC",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setPositiveButton
+                }
 
                 data.statusQC =
                     "Sudah Kirim QC"
+                dbHelper.updateStatusQC(
+                    data.spId,
+                    "Sudah Kirim QC"
+                )
 
-                adapter.notifyDataSetChanged()
+                loadSemuaData()
 
                 Toast.makeText(
                     requireContext(),

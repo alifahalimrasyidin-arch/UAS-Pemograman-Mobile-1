@@ -16,7 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
 class RegisterActivity : AppCompatActivity() {
 
     // Semua View
@@ -47,6 +47,7 @@ class RegisterActivity : AppCompatActivity() {
     private var selectedRole: String = "staff_produksi"
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+    private lateinit var dbHelper: DatabaseHelper
 
     companion object {
         private const val USER_DATA_PREFS = "USER_DATA"
@@ -55,7 +56,7 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
+        dbHelper = DatabaseHelper(this)
         initViews()
         setupRealTimeValidation()
         setupListeners()
@@ -100,14 +101,19 @@ class RegisterActivity : AppCompatActivity() {
         etEmail.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val email = s.toString().trim()
-                if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    etEmail.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
+                if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email)
+                        .matches()
+                ) {
+                    etEmail.background =
+                        ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
                     etEmail.error = "Format email tidak valid"
                 } else {
-                    etEmail.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
+                    etEmail.background =
+                        ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
                     etEmail.error = null
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -119,10 +125,12 @@ class RegisterActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 val phone = s.toString()
                 if (phone.isNotEmpty() && !phone.matches(Regex("^08[0-9]{8,12}$"))) {
-                    etPhone.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
+                    etPhone.background =
+                        ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_bordersalah)
                     tvPhoneError.visibility = View.VISIBLE
                 } else {
-                    etPhone.background = ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
+                    etPhone.background =
+                        ContextCompat.getDrawable(this@RegisterActivity, R.drawable.bg_edittext)
                     tvPhoneError.visibility = View.GONE
                 }
             }
@@ -137,6 +145,7 @@ class RegisterActivity : AppCompatActivity() {
                     etConfirmPassword.error = null
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -220,7 +229,8 @@ class RegisterActivity : AppCompatActivity() {
         if (isEmailRegistered(email)) {
             etEmail.error = "Email sudah terdaftar!"
             etEmail.requestFocus()
-            Toast.makeText(this, "Email sudah terdaftar, gunakan email lain", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Email sudah terdaftar, gunakan email lain", Toast.LENGTH_SHORT)
+                .show()
             return false
         }
 
@@ -230,44 +240,64 @@ class RegisterActivity : AppCompatActivity() {
     /**
      * Cek apakah email sudah terdaftar
      */
-    private fun isEmailRegistered(email: String): Boolean {
-        val prefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
-        return prefs.contains("user_$email")
+    private fun isEmailRegistered(
+        email: String
+    ): Boolean {
+
+        return dbHelper.isEmailExist(
+            email
+        )
     }
 
     /**
      * Simpan data user ke SharedPreferences
      */
-    private fun saveUserData(user: UserData) {
-        val prefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
-        val userDataString = "${user.name}|${user.email}|${user.phone}|${user.gender}|${user.role}|${user.password}"
-        prefs.edit().putString("user_${user.email}", userDataString).apply()
-    }
+
 
     private fun performRegistration() {
-        val fullName = etFullName.text.toString().trim()
-        val email = etEmail.text.toString().trim()
-        val phone = etPhone.text.toString().trim()
-        val password = etPassword.text.toString().trim()
+
+        val fullName =
+            etFullName.text.toString().trim()
+
+        val email =
+            etEmail.text.toString().trim()
+
+        val phone =
+            etPhone.text.toString().trim()
+
+        val password =
+            etPassword.text.toString().trim()
 
         setLoadingState(true)
 
-        // Simulasi proses registrasi
         Handler(Looper.getMainLooper()).postDelayed({
-            // Simpan data user
-            val userData = UserData(
-                name = fullName,
-                email = email,
-                phone = phone,
-                gender = selectedGender,
-                role = selectedRole,
-                password = password
-            )
-            saveUserData(userData)
+
+            val berhasil =
+                dbHelper.insertUser(
+                    nama = fullName,
+                    email = email,
+                    noHp = phone,
+                    gender = selectedGender,
+                    password = password,
+                    role = selectedRole
+                )
 
             setLoadingState(false)
-            showSuccessDialog()
-        }, 1500)
+
+            if (berhasil) {
+                showSuccessDialog()
+
+            } else {
+                Toast.makeText(
+                    this,
+
+                    "Registrasi gagal",
+                    Toast.LENGTH_SHORT
+
+                ).show()
+            }
+
+        },1500)
     }
 
     private fun showSuccessDialog() {

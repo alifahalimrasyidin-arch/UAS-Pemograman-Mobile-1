@@ -25,6 +25,10 @@ import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import android.text.Editable
 import android.text.TextWatcher
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
+import java.io.ByteArrayOutputStream
+import com.example.uaspm1kelompok1.database.SessionManager
 class QCFragment : Fragment() {
 
     private lateinit var rvQC: RecyclerView
@@ -33,6 +37,8 @@ class QCFragment : Fragment() {
     private lateinit var tvJumlahQC: TextView
 
     private lateinit var adapter: QCAdapter
+    private lateinit var dbHelper:DatabaseHelper
+    private val dataQC=mutableListOf<DashboardActivity.KirimQC>()
     private var targetImageView: ImageView? = null
 
     private var fotoSebelumBitmap: Bitmap? = null
@@ -72,11 +78,10 @@ class QCFragment : Fragment() {
 
         rvQC.layoutManager =
             LinearLayoutManager(requireContext())
+        dbHelper=DatabaseHelper(requireContext())
 
-        val dataQC =
-            DashboardActivity.dikirimKeQC.filter {
-                it.statusKain == "Menunggu QC"
-            }
+        loadDataQC()
+
 
         adapter =
             QCAdapter(dataQC) { qc ->
@@ -91,71 +96,76 @@ class QCFragment : Fragment() {
             dataQC.size
         )
 
-        btnSemuaQC.setOnClickListener {
+        btnSemuaQC.setOnClickListener{
 
-            val semuaData =
-                DashboardActivity.dikirimKeQC.filter {
-                    it.statusKain == "Menunggu QC"
-                }
+            loadDataQC()
 
-            adapter.updateData(
-                semuaData
-            )
+            adapter.updateData(dataQC)
 
-            updateJumlahData(
-                semuaData.size
-            )
+            updateJumlahData(dataQC.size)
         }
 
-        btnMingguIniQC.setOnClickListener {
+        btnMingguIniQC.setOnClickListener{
 
-            val sdf =
+            val sdf=
                 SimpleDateFormat(
                     "yyyy-MM-dd",
                     Locale.getDefault()
                 )
 
-            val today = Date()
+            val today=Date()
 
-            val sevenDays =
-                Calendar.getInstance().apply {
+            loadDataQC()
 
-                    time = today
-
-                    add(
-                        Calendar.DAY_OF_YEAR,
-                        -7
-                    )
-
+            val sevenDays=
+                Calendar.getInstance().apply{
+                    time=today
+                    add(Calendar.DAY_OF_YEAR,-7)
                 }.time
 
-            val filtered =
-                DashboardActivity.dikirimKeQC.filter {
+            val filtered=
+                dataQC.filter{
 
-                    try {
+                    try{
 
-                        val tanggal =
-                            sdf.parse(it.tanggalKirim)
+                        val tanggal=sdf.parse(it.tanggalKirim)
 
-                        tanggal != null &&
+                        tanggal!=null &&
                                 tanggal.after(sevenDays)
 
-                    } catch (e: Exception) {
+                    }catch(e:Exception){
 
                         false
                     }
                 }
 
-            adapter.updateData(
-                filtered
-            )
+            adapter.updateData(filtered)
 
-            updateJumlahData(
-                filtered.size
-            )
+            updateJumlahData(filtered.size)
         }
     }
-
+    private fun loadDataQC(){
+        dataQC.clear()
+        val cursor=dbHelper.getAllQualityControl()
+        if(cursor.moveToFirst()){
+            do{
+                if(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN))=="Menunggu QC"){
+                    dataQC.add(
+                        DashboardActivity.KirimQC(
+                            spId=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SP_ID)),
+                            noQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.NOMOR_QC)),
+                            productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JENIS_KAIN)),
+                            quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JUMLAH)),
+                            unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SATUAN)),
+                            tanggalKirim=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.TANGGAL_KIRIM)),
+                            statusKain=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN))
+                        )
+                    )
+                }
+            }while(cursor.moveToNext())
+        }
+        cursor.close()
+    }
     private fun updateJumlahData(
         jumlah: Int
     ) {
@@ -628,16 +638,11 @@ class QCFragment : Fragment() {
                     qc.grade =
                         grade
 
+                    val sessionManager =
+                        SessionManager(requireContext())
+
                     qc.petugasQC =
-                        requireActivity()
-                            .getSharedPreferences(
-                                "TIASA_PREFS",
-                                android.content.Context.MODE_PRIVATE
-                            )
-                            .getString(
-                                "user_name",
-                                "Quality Control"
-                            ) ?: "Quality Control"
+                        sessionManager.getNama()
 
                     qc.tanggalQC =
                         SimpleDateFormat(
@@ -670,33 +675,43 @@ class QCFragment : Fragment() {
 
                     qc.statusKain =
                         "Selesai QC"
-                    val prefs =
-                        requireActivity().getSharedPreferences(
-                            "TIASA_PREFS",
-                            android.content.Context.MODE_PRIVATE
-                        )
+                    val fotoSebelumByte=
+                        bitmapToByteArray(fotoSebelumBitmap)
 
-                    qc.petugasQC =
-                        prefs.getString(
-                            "user_name",
-                            "-"
-                        ) ?: "-"
+                    val fotoSesudahByte=
+                        bitmapToByteArray(fotoSesudahBitmap)
+
+                    val fotoTambahanByte=
+                        bitmapToByteArray(fotoTambahanBitmap)
+                    dbHelper.updateQualityControl(
+                        qc.spId,
+                        qc.tanggalQC,
+                        qc.petugasQC,
+                        qc.grade,
+                        qc.statusKain,
+                        qc.ujiCuci,
+                        qc.ujiDayaTahan,
+                        qc.ujiSuhuPanas,
+                        qc.hasilWarna,
+                        qc.hasilJahitan,
+                        qc.hasilUkuran,
+                        qc.ukuranAkhir.toDouble(),
+                        fotoSebelumByte,
+                        fotoSesudahByte,
+                        fotoTambahanByte,
+                        ""
+                    )
+
 
                     fotoSebelumBitmap = null
                     fotoSesudahBitmap = null
                     fotoTambahanBitmap = null
 
-                    adapter.updateData(
-                        DashboardActivity.dikirimKeQC.filter {
-                            it.statusKain == "Menunggu QC"
-                        }
-                    )
+                    loadDataQC()
 
-                    updateJumlahData(
-                        DashboardActivity.dikirimKeQC.count {
-                            it.statusKain == "Menunggu QC"
-                        }
-                    )
+                    adapter.updateData(dataQC)
+
+                    updateJumlahData(dataQC.size)
 
                     Toast.makeText(
                         requireContext(),
@@ -725,6 +740,20 @@ class QCFragment : Fragment() {
                 null
             )
             .show()
+    }
+    private fun bitmapToByteArray(bitmap:Bitmap?):ByteArray?{
+
+        if(bitmap==null)return null
+
+        val stream=ByteArrayOutputStream()
+
+        bitmap.compress(
+            Bitmap.CompressFormat.JPEG,
+            80,
+            stream
+        )
+
+        return stream.toByteArray()
     }
     private val cameraLauncher =
         registerForActivityResult(

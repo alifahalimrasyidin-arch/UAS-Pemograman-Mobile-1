@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
 class LaporanProduksiFragment : Fragment() {
 
     private lateinit var btnSemua: Button
@@ -26,7 +27,7 @@ class LaporanProduksiFragment : Fragment() {
     private lateinit var rvLaporan: RecyclerView
 
     private lateinit var adapter: LaporanProduksiAdapter
-
+    private lateinit var dbHelper:DatabaseHelper
     private val dataTampil =
         mutableListOf<DashboardActivity.SuratPerintah>()
 
@@ -68,7 +69,7 @@ class LaporanProduksiFragment : Fragment() {
 
         rvLaporan.layoutManager =
             LinearLayoutManager(requireContext())
-
+        dbHelper=DatabaseHelper(requireContext())
         adapter =
             LaporanProduksiAdapter(
                 dataTampil
@@ -159,159 +160,168 @@ class LaporanProduksiFragment : Fragment() {
                 ){}
             }
     }
-
-    private fun tampilSemua(){
+    private fun loadDataSP(){
 
         dataTampil.clear()
 
-        dataTampil.addAll(
+        val cursor=dbHelper.getAllSuratPerintah()
 
-            DashboardActivity.suratPerintah
-        )
+        if(cursor.moveToFirst()){
+
+            do{
+
+                dataTampil.add(
+                    DashboardActivity.SuratPerintah(
+                        id=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.ID)),
+                        productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JENIS_KAIN)),
+                        quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JUMLAH)),
+                        unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.SATUAN)),
+                        deadline=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.DEADLINE)),
+                        status=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.STATUS))
+                    )
+                )
+
+            }while(cursor.moveToNext())
+        }
+
+        cursor.close()
+    }
+    private fun tampilSemua(){
+
+        loadDataSP()
 
         adapter.notifyDataSetChanged()
 
-        tvJumlahData.text =
+        tvJumlahData.text=
             "Total SP : ${dataTampil.size}"
     }
 
     private fun filterBelumProduksi(){
 
+        loadDataSP()
+
+        val hasil=dataTampil.filter{
+            it.status!="Selesai Produksi"
+        }
+
         dataTampil.clear()
-
-        dataTampil.addAll(
-
-            DashboardActivity.suratPerintah.filter{
-
-                it.status!="Selesai Produksi"
-            }
-        )
+        dataTampil.addAll(hasil)
 
         adapter.notifyDataSetChanged()
 
-        tvJumlahData.text =
+        tvJumlahData.text=
             "Total SP : ${dataTampil.size}"
     }
     private fun filterSelesaiProduksi(){
 
+        loadDataSP()
+
+        val hasil=dataTampil.filter{
+            it.status=="Selesai Produksi"
+        }
+
         dataTampil.clear()
-
-        dataTampil.addAll(
-
-            DashboardActivity.suratPerintah.filter{
-
-                it.status == "Selesai Produksi"
-            }
-        )
+        dataTampil.addAll(hasil)
 
         adapter.notifyDataSetChanged()
 
-        tvJumlahData.text =
+        tvJumlahData.text=
             "Total SP : ${dataTampil.size}"
     }
-
     private fun filterMinggu(){
 
-        val sdf =
+        loadDataSP()
+
+        val sdf=
             SimpleDateFormat(
                 "yyyy-MM-dd",
                 Locale.getDefault()
             )
 
-        val calendar =
-            Calendar.getInstance()
+        val calendar=Calendar.getInstance()
 
-        val hariIni =
-            calendar.time
+        val hariIni=calendar.time
 
         calendar.add(
             Calendar.DAY_OF_YEAR,
             7
         )
 
-        val mingguDepan =
-            calendar.time
+        val mingguDepan=calendar.time
+
+        val hasil=dataTampil.filter{
+
+            try{
+
+                val deadline=sdf.parse(it.deadline)
+
+                deadline!=null &&
+                        deadline.after(hariIni) &&
+                        deadline.before(mingguDepan)
+
+            }catch(e:Exception){
+
+                false
+            }
+        }
 
         dataTampil.clear()
-
-        dataTampil.addAll(
-
-            DashboardActivity.suratPerintah.filter{
-
-                try{
-
-                    val deadline =
-                        sdf.parse(
-                            it.deadline
-                        )
-
-                    deadline != null &&
-                            deadline.after(hariIni) &&
-                            deadline.before(mingguDepan)
-
-                }catch (e:Exception){
-
-                    false
-                }
-            }
-        )
+        dataTampil.addAll(hasil)
 
         adapter.notifyDataSetChanged()
 
-        tvJumlahData.text =
+        tvJumlahData.text=
             "Total SP : ${dataTampil.size}"
     }
 
-    private fun filterBulan() {
+    private fun filterBulan(){
 
-        val bulanSekarang =
+        loadDataSP()
+
+        val bulanSekarang=
             Calendar.getInstance().get(Calendar.MONTH)
 
-        val tahunSekarang =
+        val tahunSekarang=
             Calendar.getInstance().get(Calendar.YEAR)
 
-        val sdf =
+        val sdf=
             SimpleDateFormat(
                 "yyyy-MM-dd",
                 Locale.getDefault()
             )
 
-        dataTampil.clear()
+        val hasil=dataTampil.filter{
 
-        dataTampil.addAll(
+            try{
 
-            DashboardActivity.suratPerintah.filter { sp ->
+                val deadline=sdf.parse(it.deadline)
 
-                try {
-
-                    val deadline =
-                        sdf.parse(sp.deadline)
-
-                    if (deadline == null) {
-
-                        false
-
-                    } else {
-
-                        val cal =
-                            Calendar.getInstance()
-
-                        cal.time = deadline
-
-                        cal.get(Calendar.MONTH) == bulanSekarang &&
-                                cal.get(Calendar.YEAR) == tahunSekarang
-                    }
-
-                } catch (e: Exception) {
+                if(deadline==null){
 
                     false
+
+                }else{
+
+                    val cal=Calendar.getInstance()
+
+                    cal.time=deadline
+
+                    cal.get(Calendar.MONTH)==bulanSekarang &&
+                            cal.get(Calendar.YEAR)==tahunSekarang
                 }
+
+            }catch(e:Exception){
+
+                false
             }
-        )
+        }
+
+        dataTampil.clear()
+        dataTampil.addAll(hasil)
 
         adapter.notifyDataSetChanged()
 
-        tvJumlahData.text =
+        tvJumlahData.text=
             "Total SP : ${dataTampil.size}"
     }
     private fun klikCard(
@@ -345,18 +355,33 @@ class LaporanProduksiFragment : Fragment() {
             return
         }
 
-        val hasil =
-            DashboardActivity
-                .hasilProduksi
-                .find{
+        val cursor=
+            dbHelper.getAllHasilProduksi()
 
-                    it.spId ==
-                            sp.id
+        var ditemukan=false
+
+        if(cursor.moveToFirst()){
+
+            do{
+
+                if(
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            DatabaseContract.HasilProduksiTable.SP_ID
+                        )
+                    )==sp.id
+                ){
+
+                    ditemukan=true
+                    break
                 }
 
-        if(
-            hasil == null
-        ){
+            }while(cursor.moveToNext())
+        }
+
+        cursor.close()
+
+        if(!ditemukan){
 
             Toast.makeText(
 
@@ -382,7 +407,7 @@ class LaporanProduksiFragment : Fragment() {
 
         intent.putExtra(
             "SP_ID",
-            hasil.spId
+            sp.id
         )
 
         startActivity(

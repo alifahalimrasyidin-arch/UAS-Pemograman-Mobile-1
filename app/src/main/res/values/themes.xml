@@ -11,6 +11,7 @@
         <item name="colorOnSecondary">#FFFFFF</item>
 
         <item name="android:statusBarColor">#4FA3FF</item>
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 
     <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">

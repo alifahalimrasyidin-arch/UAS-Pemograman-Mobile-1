@@ -15,7 +15,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.SessionManager
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var etEmail: EditText
@@ -28,7 +29,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvForgotPassword: TextView
     private lateinit var btnTogglePassword: ImageButton
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var dbHelper: DatabaseHelper
 
+    private lateinit var sessionManager: SessionManager
     private var isPasswordVisible = false
 
     companion object {
@@ -47,13 +50,14 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
+         dbHelper = DatabaseHelper(this)
+        sessionManager = SessionManager(this)
         initViews()
         loadSavedCredentials()
         setupListeners()
         setupPasswordToggle()
 
-        if (sharedPreferences.getBoolean(KEY_IS_LOGIN, false)) {
+        if (sessionManager.isLogin()) {
             goToDashboard()
         }
     }
@@ -108,85 +112,72 @@ class LoginActivity : AppCompatActivity() {
     /**
      * Cek apakah email sudah terdaftar di data register
      */
-    private fun isEmailRegistered(email: String): Boolean {
-        val userPrefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
-        return userPrefs.contains("user_$email")
-    }
+
 
     /**
      * Ambil data user dari SharedPreferences berdasarkan email
      * @return UserData atau null jika tidak ditemukan
      */
-    private fun getRegisteredUser(email: String): UserData? {
-        val userPrefs = getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE)
-        val userDataString = userPrefs.getString("user_$email", null)
 
-        if (userDataString != null) {
-            val parts = userDataString.split("|")
-            if (parts.size >= 6) {
-                return UserData(
-                    name = parts[0],
-                    email = parts[1],
-                    phone = parts[2],
-                    gender = parts[3],
-                    role = parts[4],
-                    password = parts[5]
-                )
-            }
-        }
-        return null
-    }
 
     /**
      * Cek login dari data register
      * @return role jika berhasil, null jika gagal
      */
-    private fun checkRegisteredUserLogin(email: String, password: String): String? {
-        val user = getRegisteredUser(email)
-        if (user != null && user.password == password) {
-            return user.role
-        }
-        return null
-    }
+
 
     private fun performLogin() {
+
         val email = etEmail.text.toString().trim()
+
         val password = etPassword.text.toString().trim()
 
         if (email.isEmpty()) {
+
             etEmail.error = "Email harus diisi"
+
             etEmail.requestFocus()
+
             return
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+
             etEmail.error = "Email tidak valid"
+
             etEmail.requestFocus()
+
             return
         }
 
         if (password.isEmpty()) {
-            etPassword.error = "Password harus diisi"
-            etPassword.requestFocus()
-            return
-        }
 
-        if (password.length < 6) {
-            etPassword.error = "Password minimal 6 karakter"
+            etPassword.error = "Password harus diisi"
+
             etPassword.requestFocus()
+
             return
         }
 
         if (cbRememberMe.isChecked) {
+
             sharedPreferences.edit().apply {
+
                 putBoolean(KEY_REMEMBER_ME, true)
+
                 putString(KEY_SAVED_EMAIL, email)
+
                 apply()
             }
+
         } else {
+
             sharedPreferences.edit().apply {
+
                 putBoolean(KEY_REMEMBER_ME, false)
+
                 remove(KEY_SAVED_EMAIL)
+
                 apply()
             }
         }
@@ -194,66 +185,127 @@ class LoginActivity : AppCompatActivity() {
         setLoadingState(true)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            // CEK APAKAH EMAIL TERDAFTAR DARI REGISTER
-            val registeredRole = checkRegisteredUserLogin(email, password)
+
+            // =============================
+            // LOGIN HARDCODE
+            // =============================
 
             when {
-                // Staff Produksi (hardcode)
-                email.equals("staffproduksi@tiasa.com", ignoreCase = true) && password == "staffproduksi123" -> {
-                    saveLoginSession(email, "Staff Produksi", "staff_produksi")
-                    Toast.makeText(this, "✅ Login Sebagai Staff Produksi!", Toast.LENGTH_SHORT).show()
+
+                email.equals(
+                    "staffproduksi@tiasa.com",
+                    true
+                ) && password == "staffproduksi123" -> {
+
+                    sessionManager.saveLogin(
+
+                        email,
+
+                        "Staff Produksi",
+
+                        "staff_produksi"
+                    )
+
                     goToDashboard()
+
+                    return@postDelayed
                 }
-                // Kepala Gudang (hardcode)
-                email.equals("kepalagudang@tiasa.com", ignoreCase = true) && password == "kepalagudang123" -> {
-                    saveLoginSession(email, "Kepala Gudang", "kepala_gudang")
-                    Toast.makeText(this, "✅ Login Sebagai Kepala Gudang!", Toast.LENGTH_SHORT).show()
+
+                email.equals(
+                    "kepalagudang@tiasa.com",
+                    true
+                ) && password == "kepalagudang123" -> {
+
+                    sessionManager.saveLogin(
+
+                        email,
+
+                        "Kepala Gudang",
+
+                        "kepala_gudang"
+                    )
+
                     goToDashboard()
+
+                    return@postDelayed
                 }
-                // Quality Control (hardcode)
-                email.equals("qualitycontrol@tiasa.com", ignoreCase = true) && password == "qualitycontrol123" -> {
-                    saveLoginSession(email, "Quality Control", "quality_control")
-                    Toast.makeText(this, "✅ Login Sebagai Quality Control!", Toast.LENGTH_SHORT).show()
+
+                email.equals(
+                    "qualitycontrol@tiasa.com",
+                    true
+                ) && password == "qualitycontrol123" -> {
+
+                    sessionManager.saveLogin(
+
+                        email,
+
+                        "Quality Control",
+
+                        "quality_control"
+                    )
+
                     goToDashboard()
-                }
-                // CEK DARI DATA REGISTER
-                registeredRole != null -> {
-                    val user = getRegisteredUser(email)
-                    val roleName = when (registeredRole) {
-                        "staff_produksi" -> "Staff Produksi"
-                        "kepala_gudang" -> "Kepala Gudang"
-                        "quality_control" -> "Quality Control"
-                        else -> "User"
-                    }
-                    saveLoginSession(email, user?.name ?: roleName, registeredRole)
-                    Toast.makeText(this, "✅ Login Sebagai $roleName!", Toast.LENGTH_SHORT).show()
-                    goToDashboard()
-                }
-                else -> {
-                    Toast.makeText(
-                        this,
-                        "❌ Email atau Password salah!\n\n📋 Demo Accounts:\n" +
-                                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                                "👔 Staff Produksi: staffproduksi@tiasa.com / staffproduksi123\n" +
-                                "👑 Kepala Gudang: kepalagudang@tiasa.com / kepalagudang123\n" +
-                                "🔬 Quality Control: qualitycontrol@tiasa.com / qualitycontrol123\n\n" +
-                                "📝 Atau gunakan akun yang sudah terdaftar!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    setLoadingState(false)
+
+                    return@postDelayed
                 }
             }
-        }, 2000)
-    }
 
-    private fun saveLoginSession(email: String, name: String, role: String) {
-        sharedPreferences.edit().apply {
-            putBoolean(KEY_IS_LOGIN, true)
-            putString(KEY_USER_EMAIL, email)
-            putString(KEY_USER_NAME, name)
-            putString(KEY_USER_ROLE, role)
-            apply()
-        }
+            // =============================
+            // LOGIN SQLITE
+            // =============================
+
+            val cursor = dbHelper.loginUser(
+
+                email,
+
+                password
+
+            )
+
+            if (cursor.moveToFirst()) {
+
+                val nama = cursor.getString(
+
+                    cursor.getColumnIndexOrThrow(
+                        "nama"
+                    )
+                )
+
+                val role = cursor.getString(
+
+                    cursor.getColumnIndexOrThrow(
+                        "role"
+                    )
+                )
+
+                sessionManager.saveLogin(
+                    email,
+                    nama,
+                    role
+                )
+
+                cursor.close()
+                Toast.makeText(
+
+                    this,
+                    "Login berhasil",
+                    Toast.LENGTH_SHORT
+
+                ).show()
+                goToDashboard()
+            } else {
+
+                cursor.close()
+                setLoadingState(false)
+                Toast.makeText(
+
+                    this,
+                    "Email atau Password salah",
+                    Toast.LENGTH_SHORT
+
+                ).show()
+            }
+        },1500)
     }
 
     private fun setLoadingState(isLoading: Boolean) {

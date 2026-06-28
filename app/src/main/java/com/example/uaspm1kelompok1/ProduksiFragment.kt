@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
 class ProduksiFragment : Fragment() {
 
     companion object {
@@ -26,6 +27,8 @@ class ProduksiFragment : Fragment() {
     private lateinit var tvJumlahData: TextView
 
     private lateinit var adapter: SPAdapter
+    private lateinit var dbHelper: DatabaseHelper
+    private val dataSP=mutableListOf<DashboardActivity.SuratPerintah>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +66,7 @@ class ProduksiFragment : Fragment() {
 
         rvProduksi.layoutManager =
             LinearLayoutManager(requireContext())
-
+        dbHelper=DatabaseHelper(requireContext())
         tampilSemuaSP()
 
         btnSemua.setOnClickListener {
@@ -84,40 +87,61 @@ class ProduksiFragment : Fragment() {
 
             refreshData = false
 
+            loadDataSP()
+
             tampilSemuaSP()
         }
     }
+    private fun loadDataSP(){
 
-    private fun tampilSemuaSP() {
+        dataSP.clear()
 
-        val data =
-            DashboardActivity.suratPerintah.filter {
+        val cursor=dbHelper.getAllSuratPerintah()
 
-                it.status != "Selesai Produksi"
-            }
+        if(cursor.moveToFirst()){
 
-        adapter =
-            SPAdapter(data) { sp ->
+            do{
 
-                val intent =
-                    Intent(
-                        requireContext(),
-                        InputProduksiActivity::class.java
+                val status=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.STATUS))
+
+                if(status!="Selesai Produksi"){
+
+                    dataSP.add(
+                        DashboardActivity.SuratPerintah(
+                            id=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.ID)),
+                            productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JENIS_KAIN)),
+                            quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JUMLAH)),
+                            unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.SATUAN)),
+                            deadline=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.DEADLINE)),
+                            status=status
+                        )
                     )
+                }
 
-                intent.putExtra(
-                    "ID_SP",
-                    sp.id
-                )
+            }while(cursor.moveToNext())
+        }
 
-                startActivity(intent)
-            }
+        cursor.close()
+    }
+    private fun tampilSemuaSP(){
 
-        rvProduksi.adapter =
-            adapter
+        loadDataSP()
 
-        tvJumlahData.text =
-            "Total SP : ${data.size}"
+        adapter=SPAdapter(dataSP){sp->
+
+            val intent=Intent(
+                requireContext(),
+                InputProduksiActivity::class.java
+            )
+
+            intent.putExtra("ID_SP",sp.id)
+
+            startActivity(intent)
+        }
+
+        rvProduksi.adapter=adapter
+
+        tvJumlahData.text="Total SP : ${dataSP.size}"
     }
 
     private fun filterMingguIni() {
@@ -143,24 +167,23 @@ class ProduksiFragment : Fragment() {
 
             }.time
 
-        val hasil =
-            DashboardActivity.suratPerintah.filter {
+        loadDataSP()
 
-                try {
+        val hasil=dataSP.filter{
 
-                    val deadline =
-                        sdf.parse(it.deadline)
+            try{
 
-                    deadline != null &&
-                            deadline.after(today) &&
-                            deadline.before(sevenDays) &&
-                            it.status != "Selesai Produksi"
+                val deadline=sdf.parse(it.deadline)
 
-                } catch (e: Exception) {
+                deadline!=null &&
+                        deadline.after(today) &&
+                        deadline.before(sevenDays)
 
-                    false
-                }
+            }catch(e:Exception){
+
+                false
             }
+        }
 
         adapter =
             SPAdapter(hasil) { sp ->

@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
 class DetailProduksiActivity : AppCompatActivity() {
 
     private lateinit var tvSpId: TextView
@@ -14,6 +15,7 @@ class DetailProduksiActivity : AppCompatActivity() {
     private lateinit var tvPetugas: TextView
     private lateinit var tvStatusQC: TextView
     private lateinit var tvCatatan: TextView
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +27,7 @@ class DetailProduksiActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         initView()
-
+        dbHelper = DatabaseHelper(this)
         loadData()
     }
 
@@ -55,18 +57,13 @@ class DetailProduksiActivity : AppCompatActivity() {
 
     private fun loadData() {
 
-        val spId =
-            intent.getStringExtra("SP_ID")
+        val spId = intent.getStringExtra("SP_ID") ?: return
 
-        val hasil =
-            DashboardActivity
-                .hasilProduksi
-                .find {
+        val cursor = dbHelper.getHasilProduksiBySpId(spId)
 
-                    it.spId == spId
-                }
+        if (!cursor.moveToFirst()) {
 
-        if (hasil == null) {
+            cursor.close()
 
             Toast.makeText(
                 this,
@@ -80,27 +77,55 @@ class DetailProduksiActivity : AppCompatActivity() {
         }
 
         tvSpId.text =
-            hasil.spId
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.SP_ID
+                )
+            )
 
         tvJenis.text =
-            hasil.productName
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.JENIS_KAIN
+                )
+            )
 
         tvJumlah.text =
-            "${hasil.quantity} ${hasil.unit}"
+            "${cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.JUMLAH))} ${
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HasilProduksiTable.SATUAN))
+            }"
 
         tvTanggal.text =
-            hasil.tanggalSelesai
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.TANGGAL_PRODUKSI
+                )
+            )
 
         tvPetugas.text =
-            hasil.petugasProduksi
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.PETUGAS_PRODUKSI
+                )
+            )
 
         tvStatusQC.text =
-            hasil.statusQC
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.STATUS_QC
+                )
+            )
+
+        val catatan =
+            cursor.getString(
+                cursor.getColumnIndexOrThrow(
+                    DatabaseContract.HasilProduksiTable.CATATAN
+                )
+            )
 
         tvCatatan.text =
-            if (hasil.notes.isBlank())
-                "-"
-            else
-                hasil.notes
+            if (catatan.isBlank()) "-" else catatan
+
+        cursor.close()
     }
 }

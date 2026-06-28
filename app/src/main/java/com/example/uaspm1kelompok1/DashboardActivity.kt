@@ -24,7 +24,9 @@ import android.text.TextWatcher
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.graphics.Bitmap
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
+import com.example.uaspm1kelompok1.database.SessionManager
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var tvUserName: TextView
@@ -33,21 +35,18 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var btnLogout: Button
     private lateinit var tvDashboardTitle: TextView
     private lateinit var menuContainer: LinearLayout
-    private lateinit var sharedPreferences: SharedPreferences
+
+    private lateinit var dbHelper: DatabaseHelper
     private var userRole: String = ""
     private lateinit var rootDashboard: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var sessionManager: SessionManager
 
     companion object {
-        private const val PREFS_NAME = "TIASA_PREFS"
-        private const val KEY_IS_LOGIN = "is_login"
-        private const val KEY_USER_EMAIL = "user_email"
-        private const val KEY_USER_NAME = "user_name"
-        private const val KEY_USER_ROLE = "user_role"
+
 
         val suratPerintah = mutableListOf<SuratPerintah>()
 
         val hasilProduksi = mutableListOf<HasilProduksi>()
-
 
 
         val dikirimKeQC = mutableListOf<KirimQC>()
@@ -55,16 +54,21 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_dashboard)
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        dbHelper = DatabaseHelper(this)
 
-        if (!sharedPreferences.getBoolean(KEY_IS_LOGIN, false)) {
+        sessionManager = SessionManager(this)
+
+        loadSuratPerintah()
+
+        if (!sessionManager.isLogin()) {
             goToLogin()
             return
         }
 
-        userRole = sharedPreferences.getString(KEY_USER_ROLE, "staff_produksi") ?: "staff_produksi"
+        userRole = sessionManager.getRole()
         when (userRole) {
 
             "kepala_gudang" -> {
@@ -122,20 +126,35 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun displayUserInfo() {
-        val userName = sharedPreferences.getString(KEY_USER_NAME, "User")
-        val userEmail = sharedPreferences.getString(KEY_USER_EMAIL, "")
+
+        val userName = sessionManager.getNama()
+
+        val userEmail = sessionManager.getUsername()
 
         tvUserName.text = userName
+
         tvUserEmail.text = userEmail
 
         val roleDisplay = when (userRole) {
+
             "kepala_gudang" -> "Kepala Gudang"
+
             "quality_control" -> "Quality Control"
+
             "staff_produksi" -> "Staff Produksi"
-            else -> userRole.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
+
+            else ->
+                userRole.replace("_", " ")
+                    .split(" ")
+                    .joinToString(" ") {
+                        it.replaceFirstChar { c -> c.uppercase() }
+                    }
         }
+
         tvUserRole.text = roleDisplay
+
         tvUserRole.visibility = View.VISIBLE
+
         tvDashboardTitle.text = when (userRole) {
 
             "kepala_gudang" ->
@@ -151,6 +170,7 @@ class DashboardActivity : AppCompatActivity() {
                 "DASHBOARD"
         }
     }
+
     private fun setupMenu() {
 
         menuContainer.removeAllViews()
@@ -308,12 +328,12 @@ class DashboardActivity : AppCompatActivity() {
                 )
 
                 setOnClickListener {
-                       startActivity(
-                            Intent(
-                                this@DashboardActivity,
-                                ProduksiActivity::class.java
-                            )
-                            )
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            ProduksiActivity::class.java
+                        )
+                    )
                 }
             }
 
@@ -348,6 +368,64 @@ class DashboardActivity : AppCompatActivity() {
             row.addView(btnHasil)
 
             menuContainer.addView(row)
+
+            return
+        }
+        if (userRole == "quality_control") {
+
+            val btnInspeksi = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(150)
+                ).apply {
+                    bottomMargin = dpToPx(16)
+                }
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_inspeksikain
+                )
+
+                setOnClickListener {
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            QCActivity::class.java
+                        )
+                    )
+                }
+            }
+
+            menuContainer.addView(btnInspeksi)
+
+            val btnLaporan = Button(this).apply {
+
+                text = ""
+
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dpToPx(150)
+                )
+
+                background = AppCompatResources.getDrawable(
+                    this@DashboardActivity,
+                    R.drawable.bg_tombol_inspeksikain2
+                )
+
+                setOnClickListener {
+                    startActivity(
+                        Intent(
+                            this@DashboardActivity,
+                            LaporanQCActivity::class.java
+                        )
+                    )
+                }
+            }
+
+            menuContainer.addView(btnLaporan)
 
             return
         }
@@ -1088,8 +1166,7 @@ class DashboardActivity : AppCompatActivity() {
         val tvPanjangError =
             inputView.findViewById<TextView>(R.id.tvPanjangError)
 
-        val spId =
-            "SP${String.format("%03d", suratPerintah.size + 1)}"
+        val spId = dbHelper.generateSuratPerintahId()
 
         tvSpId.text = "ID Surat : $spId"
 
@@ -1319,7 +1396,24 @@ class DashboardActivity : AppCompatActivity() {
                                     status = "Menunggu Proses"
                                 )
 
-                            suratPerintah.add(dataBaru)
+                            val berhasil = dbHelper.insertSuratPerintah(
+                                dataBaru.id,
+                                dataBaru.productName,
+                                dataBaru.quantity,
+                                dataBaru.unit,
+                                dataBaru.deadline,
+                                dataBaru.status
+                            )
+                            if (berhasil) {
+                                suratPerintah.add(dataBaru)
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    "Gagal menyimpan Surat Perintah",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@setPositiveButton
+                            }
 
                             val successView =
                                 layoutInflater.inflate(
@@ -1357,241 +1451,26 @@ class DashboardActivity : AppCompatActivity() {
                 )
             }
     }
-    private fun showHasilQC() {
-        val listQC = dikirimKeQC.filter { it.statusKain != "Menunggu QC" }
 
-        if (listQC.isEmpty()) {
-            Toast.makeText(this, "Belum ada hasil inspeksi QC", Toast.LENGTH_SHORT).show()
-            return
+    private fun loadSuratPerintah() {
+        suratPerintah.clear()
+        val cursor = dbHelper.getAllSuratPerintah()
+        if (cursor.moveToFirst()) {
+            do {
+                suratPerintah.add(
+                    SuratPerintah(
+                        id = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.ID)),
+                        productName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JENIS_KAIN)),
+                        quantity = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.JUMLAH)),
+                        unit = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.SATUAN)),
+                        deadline = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.DEADLINE)),
+                        status = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SuratPerintahTable.STATUS))
+                    )
+                )
+            } while (cursor.moveToNext())
         }
-
-        var message = ""
-        for (qc in listQC) {
-            message += "No QC: ${qc.noQC}\n"
-            message += "SP ID: ${qc.spId}\n"
-            message += "Produk: ${qc.productName}\n"
-            message += "Grade: ${qc.grade}\n"
-            message += "Status: ${qc.statusKain}\n"
-            message += "━━━━━━━━━━━━━━━━━━\n\n"
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Hasil Inspeksi QC")
-            .setMessage(message)
-            .setPositiveButton("TUTUP", null)
-            .show()
+        cursor.close()
     }
-
-    private fun lihatLaporanProduksi() {
-        if (suratPerintah.isEmpty()) {
-            Toast.makeText(this, "Belum ada data surat perintah", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        var message = "LAPORAN PRODUKSI\n━━━━━━━━━━━━━━━━━━━━━━\n\n"
-
-        for (sp in suratPerintah) {
-            message += " ${sp.id}\n"
-            message += " ${sp.productName}\n"
-            message += " ${sp.quantity} ${sp.unit}\n"
-            message += " ${sp.deadline}\n"
-            message += " ${sp.status}\n\n"
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Laporan Produksi")
-            .setMessage(message)
-            .setPositiveButton("TUTUP", null)
-            .show()
-    }
-
-    private fun lihatLaporanQC() {
-
-        val dataQC =
-            dikirimKeQC.filter {
-                it.statusKain == "Selesai QC"
-            }
-
-        if (dataQC.isEmpty()) {
-
-            Toast.makeText(
-                this,
-                "Belum ada data hasil QC",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            return
-        }
-
-        var totalA = 0
-        var totalB = 0
-        var totalC = 0
-
-        var message =
-            "LAPORAN QUALITY CONTROL\n" +
-                    "━━━━━━━━━━━━━━━━━━━━━━\n\n"
-
-        for (qc in dataQC) {
-
-            when (qc.grade) {
-
-                "A" -> totalA++
-
-                "B" -> totalB++
-
-                "C" -> totalC++
-            }
-
-            message +=
-                "NO QC : ${qc.noQC}\n" +
-                        "SP ID : ${qc.spId}\n" +
-                        "JENIS KAIN : ${qc.productName}\n" +
-                        "PANJANG : ${qc.quantity} Meter\n" +
-                        "TANGGAL KIRIM : ${qc.tanggalKirim}\n" +
-                        "TANGGAL QC : ${qc.tanggalQC}\n\n" +
-
-                        "UJI SAMPLE\n" +
-                        "- Uji Cuci : ${if (qc.ujiCuci) "✓" else "✗"}\n" +
-                        "- Uji Daya Tahan : ${if (qc.ujiDayaTahan) "✓" else "✗"}\n" +
-                        "- Uji Suhu Panas : ${if (qc.ujiSuhuPanas) "✓" else "✗"}\n\n" +
-
-                        "HASIL INSPEKSI\n" +
-                        "- Warna : ${qc.hasilWarna}\n" +
-                        "- Jahitan : ${qc.hasilJahitan}\n" +
-                        "- Ukuran : ${qc.hasilUkuran}\n" +
-                        "- Ukuran Akhir : ${qc.ukuranAkhir} Meter\n\n" +
-
-                        "DOKUMENTASI QC\n" +
-                        "- Foto Sebelum : ${if (qc.fotoSebelum.isNotEmpty()) "Ada" else "Tidak Ada"}\n" +
-                        "- Foto Sesudah : ${if (qc.fotoSesudah.isNotEmpty()) "Ada" else "Tidak Ada"}\n" +
-                        "- Foto Tambahan : ${if (qc.fotoTambahan.isNotEmpty()) "Ada" else "Tidak Ada"}\n\n" +
-
-                        "GRADE : ${qc.grade}\n" +
-                        "STATUS : ${qc.statusKain}\n"
-
-            if (qc.grade == "C") {
-
-                message +=
-                    "PENURUNAN HARGA : ${qc.persentasePenurunan}%\n"
-            }
-
-            message +=
-                "\n━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        }
-
-        message +=
-            "RINGKASAN HASIL QC\n\n" +
-                    "Grade A : $totalA\n" +
-                    "Grade B : $totalB\n" +
-                    "Grade C : $totalC\n\n" +
-                    "Total Kain QC : ${dataQC.size}"
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Laporan QC")
-            .setMessage(message)
-            .setPositiveButton(
-                "TUTUP",
-                null
-            )
-            .show()
-    }
-    //MENU QUALITY CONTROL
-
-    private fun showInspeksiDialogQC(qc: KirimQC) {
-
-        val view =
-            layoutInflater.inflate(
-                R.layout.dialog_inspeksi_qc,
-                null
-            )
-
-        val tvInfoQC =
-            view.findViewById<TextView>(R.id.tvInfoQC)
-
-        val spGrade =
-            view.findViewById<Spinner>(R.id.spGrade)
-
-        val etDetailQC =
-            view.findViewById<EditText>(R.id.etDetailQC)
-
-        tvInfoQC.text =
-            "No QC : ${qc.noQC}\n" +
-                    "Jenis Kain : ${qc.productName}\n" +
-                    "Panjang : ${qc.quantity} Meter"
-
-        val gradeList = arrayOf(
-            "A",
-            "B",
-            "C"
-        )
-
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            gradeList
-        )
-
-        adapter.setDropDownViewResource(
-            android.R.layout.simple_spinner_dropdown_item
-        )
-
-        spGrade.adapter = adapter
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Inspeksi Kain")
-            .setView(view)
-            .setPositiveButton("SIMPAN") { _, _ ->
-
-                val grade =
-                    spGrade.selectedItem.toString()
-
-                val detail =
-                    etDetailQC.text.toString()
-
-                qc.grade = grade
-                qc.detailQC = detail
-
-                qc.statusKain =
-                    if (
-                        grade == "A" ||
-                        grade == "B"
-                    ) {
-                        "Lulus"
-                    } else {
-                        "Gagal"
-                    }
-
-                Toast.makeText(
-                    this,
-                    "Data QC berhasil disimpan",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            .setNegativeButton("BATAL", null)
-            .show()
-    }
-
-    private fun inspeksiKain() {
-        val listQC = dikirimKeQC.filter { it.statusKain == "Menunggu QC" }
-
-        if (listQC.isEmpty()) {
-            Toast.makeText(this, "Tidak ada data kain yang perlu diperiksa", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val items = listQC.map { "${it.noQC} - ${it.productName}" }.toTypedArray()
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Pilih Kain untuk Inspeksi")
-            .setItems(items) { _, which ->
-                showInspeksiDialogQC(listQC[which])
-            }
-            .setNegativeButton("BATAL", null)
-            .show()
-    }
-
-
-
 
     // ==================== UTILITY ====================
 
@@ -1601,18 +1480,25 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun showLogoutDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle("🚪 KONFIRMASI LOGOUT")
+            .setTitle("KONFIRMASI LOGOUT")
             .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
-            .setPositiveButton("✅ YA, LOGOUT") { _, _ ->
+            .setPositiveButton("YA, LOGOUT") { _, _ ->
                 performLogout()
             }
-            .setNegativeButton("❌ BATAL", null)
+            .setNegativeButton("BATAL", null)
             .show()
     }
 
     private fun performLogout() {
-        sharedPreferences.edit { clear() }
-        Toast.makeText(this, "Berhasil logout", Toast.LENGTH_SHORT).show()
+
+        sessionManager.logout()
+
+        Toast.makeText(
+            this,
+            "Berhasil logout",
+            Toast.LENGTH_SHORT
+        ).show()
+
         goToLogin()
     }
 

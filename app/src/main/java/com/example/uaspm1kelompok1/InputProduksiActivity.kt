@@ -12,7 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.SessionManager
 class InputProduksiActivity : AppCompatActivity() {
 
     private lateinit var tvSpId: TextView
@@ -26,7 +27,7 @@ class InputProduksiActivity : AppCompatActivity() {
     private lateinit var tvPanjangError: TextView
 
     private lateinit var btnSimpanProduksi: Button
-
+    private lateinit var dbHelper: DatabaseHelper
     private var selectedSP:
             DashboardActivity.SuratPerintah? = null
 
@@ -38,7 +39,7 @@ class InputProduksiActivity : AppCompatActivity() {
         )
 
         supportActionBar?.hide()
-
+        dbHelper=DatabaseHelper(this)
         initView()
 
         loadDataSP()
@@ -80,37 +81,33 @@ class InputProduksiActivity : AppCompatActivity() {
 
     private fun loadDataSP() {
 
-        val idSP =
-            intent.getStringExtra("ID_SP")
+        val idSP=intent.getStringExtra("ID_SP")?:return
 
-        selectedSP =
-            DashboardActivity.suratPerintah.find {
-                it.id == idSP
-            }
+        val cursor=dbHelper.getSuratPerintahById(idSP)
 
-        if (selectedSP == null) {
+        if(cursor.moveToFirst()){
 
-            Toast.makeText(
-                this,
-                "Data SP tidak ditemukan",
-                Toast.LENGTH_SHORT
-            ).show()
+            selectedSP=DashboardActivity.SuratPerintah(
+                id=cursor.getString(cursor.getColumnIndexOrThrow("id")),
+                productName=cursor.getString(cursor.getColumnIndexOrThrow("jenis_kain")),
+                quantity=cursor.getInt(cursor.getColumnIndexOrThrow("jumlah")),
+                unit=cursor.getString(cursor.getColumnIndexOrThrow("satuan")),
+                deadline=cursor.getString(cursor.getColumnIndexOrThrow("deadline")),
+                status=cursor.getString(cursor.getColumnIndexOrThrow("status"))
+            )
 
+            tvSpId.text=selectedSP!!.id
+            tvJenisKainInfo.text=selectedSP!!.productName
+            tvPanjangInfo.text="${selectedSP!!.quantity} Meter"
+            tvDeadlineInfo.text=selectedSP!!.deadline
+
+        }else{
+
+            Toast.makeText(this,"Data SP tidak ditemukan",Toast.LENGTH_SHORT).show()
             finish()
-            return
         }
 
-        tvSpId.text =
-            selectedSP!!.id
-
-        tvJenisKainInfo.text =
-            selectedSP!!.productName
-
-        tvPanjangInfo.text =
-            "${selectedSP!!.quantity} Meter"
-
-        tvDeadlineInfo.text =
-            selectedSP!!.deadline
+        cursor.close()
     }
 
     private fun setupRealtimeValidation() {
@@ -261,50 +258,34 @@ class InputProduksiActivity : AppCompatActivity() {
             R.drawable.bg_edittext
         )
 
-        val prefs =
-            getSharedPreferences(
-                "TIASA_PREFS",
-                Context.MODE_PRIVATE
-            )
+        val sessionManager = SessionManager(this)
 
         val petugasProduksi =
-            prefs.getString(
-                "user_name",
-                "User"
-            ) ?: "User"
+            sessionManager.getNama()
 
-        DashboardActivity.hasilProduksi.add(
-
-            DashboardActivity.HasilProduksi(
-
-                spId =
-                    selectedSP!!.id,
-
-                productName =
-                    selectedSP!!.productName,
-
-                quantity =
-                    panjangProduksi,
-
-                unit =
-                    "Meter",
-
-                tanggalSelesai =
-                    getCurrentDate(),
-
-                petugasProduksi =
-                    petugasProduksi,
-
-                statusQC =
-                    "Belum Kirim QC",
-
-                notes =
-                    etCatatan.text.toString()
-            )
+        val berhasil=dbHelper.insertHasilProduksi(
+            selectedSP!!.id,
+            selectedSP!!.productName,
+            panjangProduksi,
+            "Meter",
+            getCurrentDate(),
+            petugasProduksi,
+            "Belum Kirim QC",
+            etCatatan.text.toString()
         )
 
-        selectedSP!!.status =
+        if(!berhasil){
+            Toast.makeText(this,"Gagal menyimpan hasil produksi",Toast.LENGTH_LONG).show()
+            return
+        }
+
+
+
+        selectedSP!!.status="Selesai Produksi"
+        dbHelper.updateStatusSuratPerintah(
+            selectedSP!!.id,
             "Selesai Produksi"
+        )
 
         ProduksiFragment.refreshData =
             true

@@ -20,8 +20,8 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
-import com.example.uaspm1kelompok1.DashboardActivity.Companion.suratPerintah
 import com.example.uaspm1kelompok1.DashboardActivity.SuratPerintah
+import com.example.uaspm1kelompok1.database.DatabaseHelper
 
 class SuratPerintahFragment : Fragment() {
 
@@ -32,6 +32,9 @@ class SuratPerintahFragment : Fragment() {
     private lateinit var fabTambahSP: FloatingActionButton
 
     private lateinit var adapter: SPAdapter
+    private lateinit var dbHelper: DatabaseHelper
+    private val dataSP=
+        mutableListOf<DashboardActivity.SuratPerintah>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +54,7 @@ class SuratPerintahFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-
+        dbHelper=DatabaseHelper(requireContext())
         rvSuratPerintah =
             view.findViewById(R.id.rvSuratPerintah)
 
@@ -70,10 +73,12 @@ class SuratPerintahFragment : Fragment() {
         rvSuratPerintah.layoutManager =
             LinearLayoutManager(requireContext())
 
+        loadDataSP()
+
         adapter =
             SPAdapter(
-                DashboardActivity.suratPerintah
-            ) { sp ->
+                dataSP
+            ){ sp ->
 
                 tampilDetailSP(sp)
             }
@@ -82,18 +87,16 @@ class SuratPerintahFragment : Fragment() {
             adapter
 
         updateJumlahData(
-            DashboardActivity.suratPerintah.size
+            dataSP.size
         )
 
-        btnSemua.setOnClickListener {
+        btnSemua.setOnClickListener{
 
-            adapter.updateData(
-                DashboardActivity.suratPerintah
-            )
+            loadDataSP()
 
-            updateJumlahData(
-                DashboardActivity.suratPerintah.size
-            )
+            adapter.updateData(dataSP)
+
+            updateJumlahData(dataSP.size)
         }
 
         btnMingguIni.setOnClickListener {
@@ -118,8 +121,11 @@ class SuratPerintahFragment : Fragment() {
 
                 }.time
 
-            val filtered =
-                DashboardActivity.suratPerintah.filter {
+
+                loadDataSP()
+
+            val filtered=
+                dataSP.filter {
 
                     try {
 
@@ -155,7 +161,32 @@ class SuratPerintahFragment : Fragment() {
         tvJumlahData.text =
             "Total SP : $jumlah"
     }
+    private fun loadDataSP(){
 
+        dataSP.clear()
+
+        val cursor=dbHelper.getAllSuratPerintah()
+
+        if(cursor.moveToFirst()){
+
+            do{
+
+                dataSP.add(
+                    DashboardActivity.SuratPerintah(
+                        id=cursor.getString(cursor.getColumnIndexOrThrow("id")),
+                        productName=cursor.getString(cursor.getColumnIndexOrThrow("jenis_kain")),
+                        quantity=cursor.getInt(cursor.getColumnIndexOrThrow("jumlah")),
+                        unit=cursor.getString(cursor.getColumnIndexOrThrow("satuan")),
+                        deadline=cursor.getString(cursor.getColumnIndexOrThrow("deadline")),
+                        status=cursor.getString(cursor.getColumnIndexOrThrow("status"))
+                    )
+                )
+
+            }while(cursor.moveToNext())
+        }
+
+        cursor.close()
+    }
     private fun tampilDetailSP(
         sp: DashboardActivity.SuratPerintah
     ) {
@@ -233,13 +264,7 @@ class SuratPerintahFragment : Fragment() {
                 R.id.tvPanjangError
             )
 
-        val spId =
-            "SP${
-                String.format(
-                    "%03d",
-                    DashboardActivity.suratPerintah.size + 1
-                )
-            }"
+        val spId=dbHelper.generateSuratPerintahId()
 
         tvSpId.text =
             "ID Surat : $spId"
@@ -498,15 +523,29 @@ class SuratPerintahFragment : Fragment() {
                                     status = "Menunggu Proses"
                                 )
 
-                            suratPerintah.add(dataBaru)
-
-                            adapter.updateData(
-                                DashboardActivity.suratPerintah
+                            val berhasil=dbHelper.insertSuratPerintah(
+                                dataBaru.id,
+                                dataBaru.productName,
+                                dataBaru.quantity,
+                                dataBaru.unit,
+                                dataBaru.deadline,
+                                dataBaru.status
                             )
+                            if(berhasil){
+                                loadDataSP()
 
-                            updateJumlahData(
-                                DashboardActivity.suratPerintah.size
-                            )
+                                adapter.updateData(dataSP)
+
+                                updateJumlahData(dataSP.size)
+
+                            }else{
+                                MaterialAlertDialogBuilder(requireContext())
+                                    .setTitle("Gagal")
+                                    .setMessage("Surat Perintah gagal disimpan ke database.")
+                                    .setPositiveButton("OK",null)
+                                    .show()
+                                return@setPositiveButton
+                            }
                             val successView =
                                 layoutInflater.inflate(
                                     R.layout.dialog_sukses_sp,

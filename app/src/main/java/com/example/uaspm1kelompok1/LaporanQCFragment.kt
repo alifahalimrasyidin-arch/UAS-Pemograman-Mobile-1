@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.text.Editable
 import android.text.TextWatcher
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
 class LaporanQCFragment : Fragment() {
 
     private lateinit var rvLaporanQC: RecyclerView
@@ -28,6 +30,8 @@ class LaporanQCFragment : Fragment() {
     private lateinit var tvJumlahLaporanQC: TextView
 
     private lateinit var adapter: LaporanQCAdapter
+    private lateinit var dbHelper:DatabaseHelper
+    private val dataQC=mutableListOf<DashboardActivity.KirimQC>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,11 +75,8 @@ class LaporanQCFragment : Fragment() {
 
         rvLaporanQC.layoutManager =
             LinearLayoutManager(requireContext())
-
-        val dataQC =
-            DashboardActivity.dikirimKeQC.filter {
-                it.statusKain == "Selesai QC"
-            }
+        dbHelper=DatabaseHelper(requireContext())
+        loadDataQC()
 
         adapter =
             LaporanQCAdapter(dataQC) { qc ->
@@ -117,21 +118,17 @@ class LaporanQCFragment : Fragment() {
                         s.toString().trim()
 
                     val hasilCari =
-                        DashboardActivity.dikirimKeQC.filter {
+                        dataQC.filter{
 
-                            it.statusKain == "Selesai QC" &&
+                            it.noQC.contains(
+                                keyword,
+                                true
+                            ) ||
 
-                                    (
-                                            it.noQC.contains(
-                                                keyword,
-                                                ignoreCase = true
-                                            ) ||
-
-                                                    it.spId.contains(
-                                                        keyword,
-                                                        ignoreCase = true
-                                                    )
-                                            )
+                                    it.spId.contains(
+                                        keyword,
+                                        true
+                                    )
                         }
 
                     adapter.updateData(
@@ -150,18 +147,13 @@ class LaporanQCFragment : Fragment() {
         )
         updateJumlahData(dataQC.size)
 
-        btnSemuaLaporan.setOnClickListener {
+        btnSemuaLaporan.setOnClickListener{
 
-            val semuaData =
-                DashboardActivity.dikirimKeQC.filter {
-                    it.statusKain == "Selesai QC"
-                }
+            loadDataQC()
 
-            adapter.updateData(semuaData)
+            adapter.updateData(dataQC)
 
-            updateJumlahData(
-                semuaData.size
-            )
+            updateJumlahData(dataQC.size)
         }
 
         btnCariQC.setOnClickListener {
@@ -171,9 +163,10 @@ class LaporanQCFragment : Fragment() {
                     .toString()
                     .trim()
 
-            val hasilCari =
-                DashboardActivity.dikirimKeQC.filter {
+            loadDataQC()
 
+            val hasilCari =
+                dataQC.filter{
                     it.statusKain == "Selesai QC" &&
 
                             (
@@ -225,7 +218,45 @@ class LaporanQCFragment : Fragment() {
         }
 
     }
+    private fun loadDataQC(){
 
+        dataQC.clear()
+
+        val cursor=dbHelper.getAllQualityControl()
+
+        if(cursor.moveToFirst()){
+
+            do{
+
+                if(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN))=="Selesai QC"){
+
+                    dataQC.add(
+                        DashboardActivity.KirimQC(
+                            spId=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SP_ID)),
+                            noQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.NOMOR_QC)),
+                            productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JENIS_KAIN)),
+                            quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JUMLAH)),
+                            unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SATUAN)),
+                            tanggalKirim=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.TANGGAL_KIRIM)),
+                            tanggalQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.TANGGAL_QC)),
+                            grade=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.GRADE)),
+                            statusKain=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN)),
+                            ujiCuci=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.UJI_CUCI))==1,
+                            ujiDayaTahan=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.UJI_DAYA_TAHAN))==1,
+                            ujiSuhuPanas=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.UJI_SUHU))==1,
+                            hasilWarna=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.HASIL_WARNA)),
+                            hasilJahitan=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.HASIL_JAHITAN)),
+                            hasilUkuran=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.HASIL_UKURAN)),
+                            ukuranAkhir=cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.UKURAN_AKHIR)).toInt()
+                        )
+                    )
+                }
+
+            }while(cursor.moveToNext())
+        }
+
+        cursor.close()
+    }
     private fun filterHari(
         jumlahHari: Int
     ) {
@@ -246,8 +277,10 @@ class LaporanQCFragment : Fragment() {
 
             }.time
 
+        loadDataQC()
+
         val filtered =
-            DashboardActivity.dikirimKeQC.filter {
+            dataQC.filter{
 
                 it.statusKain == "Selesai QC" &&
 

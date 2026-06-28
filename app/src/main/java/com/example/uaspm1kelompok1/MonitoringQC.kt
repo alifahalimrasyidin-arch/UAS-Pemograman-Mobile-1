@@ -7,7 +7,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
+import com.example.uaspm1kelompok1.database.DatabaseHelper
+import com.example.uaspm1kelompok1.database.DatabaseContract
 class MonitoringQC : AppCompatActivity() {
 
     private lateinit var etCariQC: EditText
@@ -18,7 +19,7 @@ class MonitoringQC : AppCompatActivity() {
     private lateinit var rvLaporanQC: RecyclerView
 
     private lateinit var adapter: LaporanQCAdapter
-
+    private lateinit var dbHelper:DatabaseHelper
     private val semuaData =
         mutableListOf<DashboardActivity.KirimQC>()
 
@@ -28,6 +29,7 @@ class MonitoringQC : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_monitoring_qc)
+        dbHelper=DatabaseHelper(this)
 
         initView()
         loadData()
@@ -59,43 +61,58 @@ class MonitoringQC : AppCompatActivity() {
             LinearLayoutManager(this)
     }
 
-    private fun loadData() {
+    private fun loadData(){
 
         semuaData.clear()
 
-        semuaData.addAll(
-            DashboardActivity.dikirimKeQC.filter {
-                it.statusKain == "Selesai QC"
-            }
-        )
+        val cursor=dbHelper.getAllQualityControl()
+
+        if(cursor.moveToFirst()){
+
+            do{
+
+                if(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN))=="Selesai QC"){
+
+                    semuaData.add(
+                        DashboardActivity.KirimQC(
+                            spId=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SP_ID)),
+                            noQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.NOMOR_QC)),
+                            productName=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JENIS_KAIN)),
+                            quantity=cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.JUMLAH)),
+                            unit=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.SATUAN)),
+                            tanggalKirim=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.TANGGAL_KIRIM)),
+                            tanggalQC=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.TANGGAL_QC)),
+                            grade=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.GRADE)),
+                            statusKain=cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.QualityControlTable.STATUS_KAIN))
+                        )
+                    )
+
+                }
+
+            }while(cursor.moveToNext())
+        }
+
+        cursor.close()
 
         dataTampil.clear()
         dataTampil.addAll(semuaData)
 
-        adapter =
-            LaporanQCAdapter(
-                dataTampil
-            ) { qc ->
+        adapter=LaporanQCAdapter(dataTampil){qc->
 
-                val intent =
-                    Intent(
-                        this,
-                        DetailLaporanQCActivity::class.java
-                    )
+            val intent=Intent(
+                this,
+                DetailLaporanQCActivity::class.java
+            )
 
-                intent.putExtra(
-                    "NO_QC",
-                    qc.noQC
-                )
+            intent.putExtra("NO_QC",qc.noQC)
 
-                startActivity(intent)
-            }
+            startActivity(intent)
+        }
 
-        rvLaporanQC.adapter = adapter
+        rvLaporanQC.adapter=adapter
 
         updateInfo()
     }
-
     private fun setupSpinner() {
 
         val gradeList = arrayOf(
@@ -221,7 +238,7 @@ class MonitoringQC : AppCompatActivity() {
 
                 return@setOnClickListener
             }
-
+            loadData()
             val hasil =
                 semuaData.filter {
 
