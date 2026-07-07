@@ -129,33 +129,23 @@ class LoginActivity : AppCompatActivity() {
     private fun performLogin() {
 
         val email = etEmail.text.toString().trim()
-
         val password = etPassword.text.toString().trim()
-
         if (email.isEmpty()) {
 
             etEmail.error = "Email harus diisi"
-
             etEmail.requestFocus()
-
             return
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-
             etEmail.error = "Email tidak valid"
-
             etEmail.requestFocus()
-
             return
         }
 
         if (password.isEmpty()) {
-
             etPassword.error = "Password harus diisi"
-
             etPassword.requestFocus()
-
             return
         }
 
@@ -170,7 +160,9 @@ class LoginActivity : AppCompatActivity() {
                 apply()
             }
 
-        } else {
+        }
+
+        else {
 
             sharedPreferences.edit().apply {
 
