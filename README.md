@@ -1,8 +1,8 @@
 KELOMPOK 1
 Nama Anggota dan bagian kerjanya:
 -Alifa Halim Rasyidin 24552011300
-Database SQLITE
-Desain semua tampilan from
+Database SQLITE,
+Desain semua tampilan from,
 Penyempurnaan Kode fitur staffproduksi,kepalagudang,QC
 
 -Arya Agustina 24552011303
